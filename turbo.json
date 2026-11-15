@@ -1,0 +1,36 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "agentGuidance": true,
+  "ui": "tui",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**", "dist/**"],
+      "description": "Собрать приложения и зависимости"
+    },
+    "lint": {
+      "dependsOn": ["^lint"],
+      "description": "Проверить код Oxlint с учётом типов"
+    },
+    "check-types": {
+      "dependsOn": ["^check-types"],
+      "description": "Проверить типы TypeScript"
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "description": "Запустить приложения в режиме разработки"
+    },
+    "start": {
+      "cache": false,
+      "persistent": true,
+      "description": "Запустить собранные приложения"
+    }
+  },
+  "globalDependencies": [
+    ".oxlintrc.json",
+    ".oxfmtrc.json",
+    "packages/typescript-config/*.json"
+  ]
+}

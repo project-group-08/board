@@ -1,0 +1,47 @@
+{
+  "name": "@tabula/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "check-types": "next typegen && tsc --noEmit",
+    "lint": "oxlint --config ../../.oxlintrc.json .",
+    "lint:fsd": "steiger src"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "catalog:",
+    "@tabula/contracts": "workspace:*",
+    "@tanstack/react-query": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-hook-form": "catalog:",
+    "socket.io-client": "catalog:",
+    "y-protocols": "catalog:",
+    "yjs": "catalog:",
+    "zod": "catalog:",
+    "zustand": "catalog:"
+  },
+  "devDependencies": {
+    "@feature-sliced/steiger-plugin": "catalog:",
+    "@tabula/typescript-config": "workspace:*",
+    "@tailwindcss/postcss": "catalog:",
+    "@testing-library/dom": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@testing-library/user-event": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "jsdom": "catalog:",
+    "msw": "catalog:",
+    "postcss": "catalog:",
+    "steiger": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

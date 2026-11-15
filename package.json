@@ -1,0 +1,33 @@
+{
+  "name": "tabula",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "build:web": "pnpm --filter @tabula/web build",
+    "build:api": "pnpm --filter @tabula/api build",
+    "dev": "turbo run dev",
+    "dev:web": "pnpm --filter @tabula/web dev",
+    "dev:api": "pnpm --filter @tabula/api dev",
+    "start": "turbo run start",
+    "start:web": "pnpm --filter @tabula/web start",
+    "start:api": "pnpm --filter @tabula/api start",
+    "test:api": "pnpm --filter @tabula/api test",
+    "lint": "oxlint --config .oxlintrc.json .",
+    "lint:fsd": "pnpm --filter @tabula/web lint:fsd",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "check-types": "turbo run check-types"
+  },
+  "devDependencies": {
+    "eslint-plugin-turbo": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "oxlint-tsgolint": "catalog:",
+    "turbo": "catalog:",
+    "typescript": "catalog:"
+  },
+  "engines": {
+    "node": ">=24.15 <25"
+  },
+  "packageManager": "pnpm@12.21.0"
+}
