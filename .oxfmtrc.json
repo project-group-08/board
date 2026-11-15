@@ -1,0 +1,21 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 80,
+  "sortImports": {},
+  "sortTailwindcss": {
+    "functions": ["cn", "cva", "clsx"]
+  },
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/.turbo/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/out/**",
+    "**/coverage/**",
+    "**/next-env.d.ts",
+    "**/AGENTS.md",
+    "pnpm-lock.yaml",
+    "docs/architecture/frontend.md"
+  ]
+}

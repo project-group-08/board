@@ -1,0 +1,81 @@
+# Личные настройки ИИ-агентов: у каждого свои, в репозиторий не попадают.
+CLAUDE.local.md
+.claude/settings.local.json
+AGENTS.override.md
+
+# Зависимости и кеши
+node_modules/
+.pnpm-store/
+.turbo/
+.cache/
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+next-env.d.ts
+
+# В репозитории хранится только шаблон окружения без секретов
+.env
+.aws/
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Логи, отчёты
+*.log
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+playwright/.cache/
+playwright/.auth/
+
+# Локальные базы и архивы
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite-journal
+*.sqlite-shm
+*.sqlite-wal
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-shm
+*.sqlite3-wal
+*.dump
+*.sql.gz
+*.zip
+*.7z
+*.rar
+*.tar
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tgz
+
+# Окружение Nix и ссылки на результаты сборок
+.direnv/
+/result
+/result-*
+flake.lock
+flake.nix
+shell.nix
+
+# Служебные файлы ОС и редакторов
+.DS_Store
+Thumbs.db
+Desktop.ini
+.vscode
+.idea/
+*.iml
+*.swp
+*.swo
+*~
+
+# Каркас
+.env
+.env.*
+!.env.example

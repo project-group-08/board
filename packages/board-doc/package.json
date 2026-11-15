@@ -1,0 +1,14 @@
+{
+  "name": "@tabula/board-doc",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@tabula/contracts": "workspace:*",
+    "yjs": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

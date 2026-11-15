@@ -1,0 +1,43 @@
+{
+  "name": "@tabula/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nest start --watch",
+    "build": "nest build",
+    "start": "node --env-file-if-exists=.env dist/main.js",
+    "check-types": "tsc --noEmit",
+    "lint": "oxlint --config ../../.oxlintrc.json .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@nestjs/bullmq": "catalog:",
+    "@nestjs/common": "catalog:",
+    "@nestjs/config": "catalog:",
+    "@nestjs/core": "catalog:",
+    "@nestjs/platform-express": "catalog:",
+    "@nestjs/platform-socket.io": "catalog:",
+    "@nestjs/swagger": "catalog:",
+    "@nestjs/websockets": "catalog:",
+    "@prisma/client": "catalog:",
+    "@tabula/board-doc": "workspace:*",
+    "@tabula/contracts": "workspace:*",
+    "bullmq": "catalog:",
+    "reflect-metadata": "catalog:",
+    "rxjs": "catalog:",
+    "socket.io": "catalog:",
+    "y-protocols": "catalog:",
+    "yjs": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "catalog:",
+    "@nestjs/testing": "catalog:",
+    "@tabula/typescript-config": "workspace:*",
+    "@types/node": "catalog:",
+    "prisma": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
