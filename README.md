@@ -104,6 +104,58 @@ Oxlint, его движок проверки типов, Oxfmt и JS-плаги�
 
 Остальные проверки появятся вместе с конфигами: список работ в [docs/ai/README.md](docs/ai/README.md), раздел «Сделать с каркасом».
 
+### Запуск через Docker
+
+Для запуска нужны Docker Desktop с запущенным Docker Engine и Docker Compose v2.
+Проверьте Compose командой `docker compose version`.
+
+GNU Make нужен для короткой команды `make up`. Проверьте его наличие
+командой `make --version`.
+
+Перед первым запуском из корня проекта создайте локальный файл окружения:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+#### Запустите сервисы из корня проекта:
+```sh
+make up
+```
+
+Без GNU Make выполните эквивалентную команду:
+
+```sh
+docker compose -f docker-compose.yml -f docker-compose.local.yml up --build -d
+```
+
+Локальные адреса:
+
+- приложение: <https://localhost>;
+- интерфейс Mailpit: <http://localhost:8025>;
+- PostgreSQL: `localhost:5432`;
+- Redis: `localhost:6379`.
+
+#### Остановить сервисы, сохранив данные PostgreSQL и Redis, можно командой:
+
+```sh
+make down
+```
+Эквивалентная команда
+```sh
+docker compose -f docker-compose.yml -f docker-compose.local.yml down
+```
+
+#### Посмотреть логи в реальном времени:
+
+```sh
+make logs
+```
+Эквивалентная команда
+```sh
+docker compose -f docker-compose.yml -f docker-compose.local.yml logs -f
+```
+
 ## Ветки и коммиты
 
 - `main`: стабильная версия, с неё деплой на прод. `develop`: основная ветка разработки.

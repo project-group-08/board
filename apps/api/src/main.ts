@@ -9,7 +9,7 @@ async function bootstrap() {
   app.setGlobalPrefix("api");
   app.enableShutdownHooks();
 
-  await app.listen(4000, "localhost");
+  await app.listen(4000, "0.0.0.0");
 }
 
 bootstrap().catch(() => {

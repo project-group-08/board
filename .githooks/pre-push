@@ -1,0 +1,8 @@
+#!/bin/sh
+set -eu
+
+pnpm format:check
+pnpm lint
+pnpm lint:fsd
+pnpm check-types
+pnpm test:api
