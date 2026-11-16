@@ -32,7 +32,7 @@
 возвращает статус `204` без тела. Для запуска не нужны `.env`, Postgres
 или Redis: текущий код не использует переменные окружения и внешние сервисы.
 Prisma-схема и миграции появятся вместе с первой задачей хранения данных.
-Docker Compose добавляет задача инфраструктуры.
+Для запуска через Docker см. раздел «Запуск через Docker» ниже.
 
 `pnpm dev` запускает оба приложения через Turborepo. Команды
 `pnpm build:web` и `pnpm build:api` собирают приложения отдельно.
@@ -109,7 +109,7 @@ Oxlint, его движок проверки типов, Oxfmt и JS-плаги�
 Для запуска нужны Docker Desktop с запущенным Docker Engine и Docker Compose v2.
 Проверьте Compose командой `docker compose version`.
 
-GNU Make нужен для короткой команды `make up`. Проверьте его наличие
+GNU Make нужен для команд Makefile в корне проекта. Проверьте его наличие
 командой `make --version`.
 
 Перед первым запуском из корня проекта создайте локальный файл окружения:
@@ -118,7 +118,14 @@ GNU Make нужен для короткой команды `make up`. Прове
 Copy-Item .env.example .env
 ```
 
-#### Запустите сервисы из корня проекта:
+Соберите образы приложений:
+
+```sh
+make build
+```
+
+Запустите контейнеры в фоне:
+
 ```sh
 make up
 ```
@@ -126,8 +133,12 @@ make up
 Без GNU Make выполните эквивалентную команду:
 
 ```sh
-docker compose -f docker-compose.yml -f docker-compose.local.yml up --build -d
+docker compose --project-directory . --profile local -f docker/docker-compose.yml up -d
 ```
+
+Compose-файл, Dockerfile приложений, Caddyfile и Makefile находятся в `docker/`.
+Профиль `local` включает Mailpit. Для запуска Compose напрямую из корня проекта
+используйте указанные выше `--project-directory`, `--profile` и путь к файлу.
 
 Локальные адреса:
 
@@ -136,24 +147,28 @@ docker compose -f docker-compose.yml -f docker-compose.local.yml up --build -d
 - PostgreSQL: `localhost:5432`;
 - Redis: `localhost:6379`.
 
-#### Остановить сервисы, сохранив данные PostgreSQL и Redis, можно командой:
+Остановить сервисы, сохранив данные PostgreSQL и Redis:
 
 ```sh
 make down
 ```
-Эквивалентная команда
+
+Эквивалентная команда:
+
 ```sh
-docker compose -f docker-compose.yml -f docker-compose.local.yml down
+docker compose --project-directory . --profile local -f docker/docker-compose.yml down
 ```
 
-#### Посмотреть логи в реальном времени:
+Посмотреть логи в реальном времени:
 
 ```sh
 make logs
 ```
-Эквивалентная команда
+
+Эквивалентная команда:
+
 ```sh
-docker compose -f docker-compose.yml -f docker-compose.local.yml logs -f
+docker compose --project-directory . --profile local -f docker/docker-compose.yml logs -f
 ```
 
 ## Ветки и коммиты

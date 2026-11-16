@@ -1,9 +1,21 @@
-COMPOSE = docker compose -f docker-compose.yml -f docker-compose.local.yml
+.DEFAULT_GOAL := help
 
-.PHONY: up down logs
+COMPOSE ?= docker compose --project-directory . --profile local -f docker/docker-compose.yml
+
+.PHONY: help build up down logs
+
+help:
+	@echo Available commands:
+	@echo   make build - build application Docker images
+	@echo   make up    - start containers in the background
+	@echo   make down  - stop containers and preserve volumes
+	@echo   make logs  - follow container logs
+
+build:
+	$(COMPOSE) build
 
 up:
-	$(COMPOSE) up --build -d
+	$(COMPOSE) up -d
 
 down:
 	$(COMPOSE) down
