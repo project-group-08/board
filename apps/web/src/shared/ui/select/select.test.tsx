@@ -69,9 +69,11 @@ describe("Select", () => {
     expect(document.querySelectorAll(`[id="${trigger.id}"]`)).toHaveLength(1);
     await user.click(screen.getByText("Роль"));
     expect(trigger).toHaveAttribute("aria-expanded", "true");
-    expect(screen.getByRole("option", { name: "Редактор" })).toHaveFocus();
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "Редактор" })).toHaveFocus(),
+    );
     await user.keyboard("{Escape}");
-    expect(trigger).toHaveFocus();
+    await waitFor(() => expect(trigger).toHaveFocus());
   });
 
   it("closes on an outside click without blocking the page", async () => {
