@@ -26,7 +26,7 @@ import { BoardCard } from '@/entities/board/ui/board-card'
 - Код только для сервера (загрузчики данных для серверных компонентов) экспортируй из `index.server.ts`, первой строкой `import 'server-only'`. Из `index.ts` он попал бы в клиентскую сборку.
 - Сегменты слайса: `ui`, `model`, `api`, `lib`, `config`; в `shared` ещё `routes`. Не заводим сегменты `components`, `hooks`, `types`, `helpers`, слой `processes` и папку `shared/types`.
 - Начинаем со страницы: код живёт в `_pages/<страница>`, пока он не понадобится второй странице. Тогда переносим ниже: крупный блок в `widgets`, действие пользователя в `features`, понятие предметной области в `entities`.
-- Файлы и папки называем в kebab-case: `board-page.tsx`, `features/rename-board/`.
+- Файлы и папки называем в kebab-case: `board-page.tsx`, `features/rename-board/`, `shared/ui/search-input/` ([ADR-0012](../../docs/adr/0012-ui-kit.md)).
 - Страницу, слайс или сегмент добавляй по скиллу `project-fsd-slice`.
 
 ## Рендеринг и данные
@@ -44,10 +44,10 @@ import { BoardCard } from '@/entities/board/ui/board-card'
 
 ## UI
 
-- Компоненты shadcn/ui лежат в `src/shared/ui` по файлу на компонент (`shared/ui/button.tsx`), общего `index.ts` там нет. Утилиты в `src/shared/lib`.
+- Компоненты UI Kit лежат в отдельных kebab-case-папках `src/shared/ui`: реализация, тест, story и собственный `index.ts`. Общего `shared/ui/index.ts` нет. Утилиты в `src/shared/lib` ([ADR-0012](../../docs/adr/0012-ui-kit.md)).
 - Сначала ищи готовый компонент shadcn, потом пиши свой.
 - Стили только классами Tailwind CSS 4: семантические цвета темы (`bg-primary`, `text-muted-foreground`), без сырых hex; отступы между элементами через flex и `gap`.
-- Основа shadcn (Radix или Base UI) ещё не выбрана. Когда выберем, она будет записана в `components.json`: компоненты на другой основе не добавляй. Пока `components.json` нет, `shadcn init` и `shadcn add` не запускай: основа выбирается при init.
+- Основа интерактивных примитивов — Base UI; нативные компоненты без необходимости не переписываем ([ADR-0012](../../docs/adr/0012-ui-kit.md)). Пока `components.json` нет, `shadcn init` и `shadcn add` не запускай.
 - Доступность: семантические теги, `aria-label` у кнопок-иконок, управление с клавиатуры.
 
 ## Ошибки
