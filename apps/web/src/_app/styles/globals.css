@@ -1,11 +1,121 @@
 @import "tailwindcss";
+@source '../../../.storybook';
 
-@theme {
-  --color-background: oklch(0.98 0.005 260);
-  --color-foreground: oklch(0.23 0.025 260);
-  --color-muted-foreground: oklch(0.48 0.025 260);
-  --color-card: oklch(1 0 0);
-  --color-border: oklch(0.9 0.01 260);
-  --color-primary: oklch(0.5 0.18 265);
-  --font-sans: Arial, Helvetica, sans-serif;
+@theme inline {
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+  --color-muted-foreground: var(--color-muted-foreground);
+  --color-inverse: var(--color-inverse);
+  --color-inverse-foreground: var(--color-inverse-foreground);
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-primary-foreground: var(--color-primary-foreground);
+  --color-accent: var(--color-accent);
+  --color-accent-solid: var(--color-accent-solid);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-accent-foreground: var(--color-accent-foreground);
+  --color-border: var(--color-border);
+  --color-dot: var(--color-dot);
+  --color-muted: var(--color-muted);
+  --color-muted-hover: var(--color-muted-hover);
+  --color-destructive: var(--color-destructive);
+  --color-destructive-hover: var(--color-destructive-hover);
+  --color-destructive-foreground: var(--color-destructive-foreground);
+}
+
+:root {
+  --color-background: #fff;
+  --color-surface: #fafafa;
+  --color-muted: #f4f4f5;
+  --color-muted-hover: #e4e4e7;
+  --color-border: #e4e4e7;
+  --color-dot: #d4d4d8;
+  --color-foreground: #18181b;
+  --color-muted-foreground: #71717a;
+  --color-inverse: #18181b;
+  --color-inverse-foreground: #fafafa;
+  --color-primary: #18181b;
+  --color-primary-hover: #3f3f46;
+  --color-primary-foreground: #fafafa;
+  --color-accent: #2563eb;
+  --color-accent-solid: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-foreground: #fff;
+  --color-accent-soft: #eef3ff;
+  --color-ring: rgb(37 99 235 / 70%);
+  --color-destructive: #db2626;
+  --color-destructive-hover: #b91c1c;
+  --color-destructive-foreground: #fff;
+  --color-success: #16a34a;
+  --color-shadow: rgb(0 0 0 / 6%);
+  --color-overlay: rgb(0 0 0 / 50%);
+  --color-preview-shadow: #fff;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-48: 48px;
+  --space-64: 64px;
+  --space-96: 96px;
+  --font-sans: "Geist Variable", sans-serif;
+  --font-mono: "Geist Mono Variable", monospace;
+  --type-display: 500 60px/64px var(--font-sans);
+  --tracking-display: -0.03em;
+  --type-heading-2: 500 40px/48px var(--font-sans);
+  --tracking-heading-2: -0.02em;
+  --type-title: 500 24px/32px var(--font-sans);
+  --tracking-title: -0.01em;
+  --type-heading-3: 500 18px/28px var(--font-sans);
+  --type-body-l: 400 18px/28px var(--font-sans);
+  --type-body-medium: 500 16px/24px var(--font-sans);
+  --type-body: 400 15px/24px var(--font-sans);
+  --type-body-s: 400 14px/20px var(--font-sans);
+  --type-label: 500 14px/20px var(--font-sans);
+  --type-caption: 400 13px/20px var(--font-sans);
+  --type-mono: 400 12px/16px var(--font-mono);
+  --shadow-floating: 0 4px 16px 0 var(--color-shadow);
+  --shadow-focus:
+    0 0 0 2px var(--color-background), 0 0 0 4px var(--color-ring);
+}
+
+[data-theme="dark"] {
+  --color-background: #0e0e10;
+  --color-surface: #141416;
+  --color-muted: #1c1c1f;
+  --color-muted-hover: #27272a;
+  --color-border: #2a2a2e;
+  --color-dot: #2e2e33;
+  --color-foreground: #f4f4f5;
+  --color-muted-foreground: #a1a1aa;
+  --color-inverse: #f4f4f5;
+  --color-inverse-foreground: #18181b;
+  --color-primary: #f4f4f5;
+  --color-primary-hover: #d4d4d8;
+  --color-primary-foreground: #18181b;
+  --color-accent: #4f8bff;
+  --color-accent-solid: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-foreground: #fff;
+  --color-accent-soft: #162036;
+  --color-ring: rgb(79 139 255 / 80%);
+  --color-destructive: #f77070;
+  --color-destructive-hover: #fca5a5;
+  --color-destructive-foreground: #0e0e10;
+  --color-success: #4ade80;
+  --color-shadow: rgb(0 0 0 / 0%);
+  --color-overlay: rgb(0 0 0 / 60%);
+  --color-preview-shadow: rgb(0 0 0 / 50%);
+}
+
+body {
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
 }
