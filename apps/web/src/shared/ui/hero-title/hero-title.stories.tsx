@@ -32,6 +32,19 @@ export const HeroComposition: Story = {
   ),
 };
 
+export const MobileComposition: Story = {
+  ...HeroComposition,
+  globals: { viewport: { value: "mobile2", isRotated: false } },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "До 768 px используется мобильная типографика; начиная с 768 px — крупная.",
+      },
+    },
+  },
+};
+
 export const NarrowResearch: Story = {
   parameters: {
     docs: {

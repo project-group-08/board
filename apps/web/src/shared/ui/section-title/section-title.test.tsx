@@ -24,6 +24,10 @@ describe("SectionTitle", () => {
     expect(colors[":root"]).toMatchObject({
       "--color-inverse": "#18181b",
       "--color-inverse-foreground": "#fafafa",
+      "--type-display-mobile": "500 36px/40px var(--font-sans)",
+      "--type-heading-2-mobile": "500 28px/36px var(--font-sans)",
+      "--type-display": "500 60px/64px var(--font-sans)",
+      "--type-heading-2": "500 40px/48px var(--font-sans)",
     });
     expect(colors["[data-theme='dark']"]).toMatchObject({
       "--color-inverse": "#f4f4f5",
@@ -57,7 +61,8 @@ describe("SectionTitle", () => {
     const title = screen.getByRole("heading", { level: 3, name: "Заголовок" });
     expect(title).toHaveClass(
       "text-inverse-foreground",
-      "[font:var(--type-heading-2)]",
+      "[font:var(--type-heading-2-mobile)]",
+      "md:[font:var(--type-heading-2)]",
       "tracking-[var(--tracking-heading-2)]",
     );
     expect(title).not.toHaveClass("text-foreground");

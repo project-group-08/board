@@ -73,3 +73,16 @@ export const Narrow: Story = {
     </div>
   ),
 };
+
+export const Mobile: Story = {
+  ...Left,
+  globals: { viewport: { value: "mobile2", isRotated: false } },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "До 768 px используется мобильная типографика; начиная с 768 px — крупная.",
+      },
+    },
+  },
+};
