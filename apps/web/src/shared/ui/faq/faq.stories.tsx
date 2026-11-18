@@ -77,6 +77,32 @@ export const Narrow: Story = {
   ),
 };
 
+export const QuestionAlignment: Story = {
+  render: () => (
+    <div className="w-full max-w-[350px]">
+      <Faq.Root>
+        <div className="flex flex-col gap-[var(--space-24)]">
+          <Faq.Item
+            value="short"
+            question="Как создать доску?"
+            answer="Создайте доску в рабочем пространстве."
+          />
+          <Faq.Item
+            value="mobile"
+            question="Можно ли перенести доски из другого сервиса?"
+            answer="Пока нет, доски создаются с нуля."
+          />
+          <Faq.Item
+            value="long"
+            question="Как команде подготовить подробную доску, пригласить коллег, обсудить идеи и сохранить результат совместной работы для следующей встречи?"
+            answer="Создайте доску и пригласите коллег."
+          />
+        </div>
+      </Faq.Root>
+    </div>
+  ),
+};
+
 export const LandingComposition: Story = {
   parameters: {
     docs: {

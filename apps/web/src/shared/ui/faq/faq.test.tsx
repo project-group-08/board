@@ -25,6 +25,23 @@ function Group({
 }
 
 describe("Faq", () => {
+  it.each(["Короткий вопрос?", "Можно ли перенести доски из другого сервиса?"])(
+    "aligns the chevron with the question block: %s",
+    (question) => {
+      const { container } = render(
+        <Faq.Root>
+          <Faq.Item value="one" question={question} answer="Ответ" />
+        </Faq.Root>,
+      );
+      expect(screen.getByRole("button", { name: question })).toHaveClass(
+        "items-center",
+      );
+      const icon = container.querySelector("svg");
+      expect(icon).not.toHaveClass("mt-[var(--space-4)]");
+      expect(icon).toHaveAttribute("stroke-width", "2.25");
+    },
+  );
+
   it("opens and closes with a mouse and links the accessible panel", async () => {
     const user = userEvent.setup();
     const { container } = render(<Group />);

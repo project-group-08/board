@@ -29,6 +29,16 @@ export const Narrow: Story = {
   ),
 };
 
+export const TextAlignment: Story = {
+  render: () => (
+    <div className="flex w-full max-w-[350px] flex-col gap-[var(--space-12)]">
+      <CheckItem text="Создаст черновик схемы по описанию" />
+      <CheckItem text="Накидает идеи для мозгового штурма на стикеры" />
+      <CheckItem text="Очень длинный пункт с описанием совместной работы, нескольких последовательных действий и дополнительных деталей для обсуждения с командой на доске" />
+    </div>
+  ),
+};
+
 export const List: Story = {
   render: () => (
     <ul
