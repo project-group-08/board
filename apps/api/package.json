@@ -20,6 +20,7 @@
     "@nestjs/platform-socket.io": "catalog:",
     "@nestjs/swagger": "catalog:",
     "@nestjs/websockets": "catalog:",
+    "@prisma/adapter-pg": "catalog:",
     "@prisma/client": "catalog:",
     "@tabula/board-doc": "workspace:*",
     "@tabula/contracts": "workspace:*",
