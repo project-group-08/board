@@ -45,4 +45,32 @@ describe("SiteFooter", () => {
     expect(within(footer).queryByRole("navigation")).not.toBeInTheDocument();
     expect(footer.querySelectorAll("a")).toHaveLength(1);
   });
+
+  it("provides responsive layout and allows long content to wrap", () => {
+    const longText = "НеразрывныйТекст".repeat(12);
+    render(<SiteFooter brand={longText} copyright={longText} />);
+    const footer = screen.getByRole("contentinfo");
+    const content = footer.firstElementChild;
+    expect(footer).toHaveClass("w-full", "border-t");
+    expect(content).toHaveClass(
+      "w-[calc(100%-40px)]",
+      "md:w-[calc(100%-80px)]",
+      "max-w-[1120px]",
+      "flex-col",
+      "md:flex-row",
+      "items-start",
+      "md:items-center",
+      "gap-[var(--space-4)]",
+      "pb-[var(--space-32)]",
+      "md:pb-[var(--space-24)]",
+    );
+    expect(within(footer).getAllByText(longText)).toHaveLength(2);
+    for (const element of within(footer).getAllByText(longText)) {
+      expect(element).toHaveClass(
+        "min-w-0",
+        "max-w-full",
+        "[overflow-wrap:anywhere]",
+      );
+    }
+  });
 });
