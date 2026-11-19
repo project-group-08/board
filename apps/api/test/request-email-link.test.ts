@@ -34,7 +34,7 @@ it("возвращает 400, если передали неверный email",
 
 it("возвращает 204, если передали верный email", async () => {
   vi.stubEnv("APP_URL", "http://localhost:3000");
-  
+
   const mailbox = new InMemoryMailTransport();
   const module = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(PrismaService)
@@ -58,6 +58,44 @@ it("возвращает 204, если передали верный email", asy
 
     expect(response.status).toBe(204);
     mailbox.assertSent({to: "test@example.test"})
+  } finally {
+    await app.close();
+  }
+});
+
+it("отправляет только одну ссылку при двух быстрых запросах", async () => {
+  vi.stubEnv("APP_URL", "http://localhost:3000");
+
+  const create = vi.fn().mockResolvedValue(undefined);
+  const mailbox = new InMemoryMailTransport();
+
+  const module = await Test.createTestingModule({ imports: [AppModule] })
+    .overrideProvider(PrismaService)
+    .useValue({ emailVerificationToken: { create } })
+    .overrideProvider(MailTransport)
+    .useValue(mailbox)
+    .compile();
+
+  const app = module.createNestApplication({ logger: false });
+
+  try {
+    app.setGlobalPrefix("api");
+    await app.listen(0, "127.0.0.1");
+
+    const url = `${await app.getUrl()}/api/auth/email-link`;
+    const request = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: "test@example.test" }),
+    };
+
+    const first = await fetch(url, request);
+    const second = await fetch(url, request);
+
+    expect(first.status).toBe(204);
+    expect(second.status).toBe(429);
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(mailbox.mails).toHaveLength(1);
   } finally {
     await app.close();
   }

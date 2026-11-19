@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { randomBytes, createHash } from 'crypto';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import { Mailer } from '@nestjs/mail';
@@ -6,10 +6,12 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
+    private readonly emailLinkCooldowns = new Set<string>()
+    
     constructor(
         private prismaService: PrismaService,
         private mailer: Mailer,
-        private configService: ConfigService
+        private configService: ConfigService,
     ) {}
 
     async issueEmailLink(email: string, expiresAt: Date): Promise<string> {
@@ -28,6 +30,21 @@ export class AuthService {
     }
 
     async requestEmailLink(email: string): Promise<void> {
+        const normalizedEmail = email.toLowerCase();
+
+        if (this.emailLinkCooldowns.has(normalizedEmail)) {
+            throw new HttpException(
+                "Подождите перед повторной отправкой ссылки",
+                HttpStatus.TOO_MANY_REQUESTS
+            )
+        }
+
+        this.emailLinkCooldowns.add(normalizedEmail);
+
+        setTimeout(() => {
+            this.emailLinkCooldowns.delete(normalizedEmail)
+        }, 60_000).unref();
+
         const expiresAt = new Date(Date.now() + 15 * 60_000);
         const token = await this.issueEmailLink(email, expiresAt);
 
