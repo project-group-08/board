@@ -257,6 +257,9 @@ catalogs:
     '@vitejs/plugin-react':
       specifier: 6.3.0
       version: 6.3.0
+    apeiro:
+      specifier: 0.1.0
+      version: 0.1.0
     bullmq:
       specifier: 6.7.6
       version: 6.7.6
@@ -482,6 +485,9 @@ importers:
       '@tanstack/react-query':
         specifier: 'catalog:'
         version: 5.107.1(@types/react@19.2.18)(react@19.2.8)
+      apeiro:
+        specifier: 'catalog:'
+        version: 0.1.0(react@19.2.8)(y-protocols@1.0.7(yjs@13.6.33))(yjs@13.6.33)
       class-variance-authority:
         specifier: 'catalog:'
         version: 0.7.1
@@ -1405,6 +1411,9 @@ packages:
   '@lukeed/csprng@1.1.0':
     resolution: {integrity: sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA==}
     engines: {node: '>=8'}
+
+  '@mapbox/tiny-sdf@2.3.0':
+    resolution: {integrity: sha512-gBvcNDBBB66bgQYvnaJ6Jk+VCaMmVq5+IZR2kWPisT88Z8s0kBQt6hfVi8QgRW8Vpg0UWZzBA4ZSyzHHC+VeRA==}
 
   '@microsoft/tsdoc@0.17.1':
     resolution: {integrity: sha512-VHyYyyoH63jFoO3shpw9Zfijk5v/9p/VrClW35z0/q6ooK7sSmxpzOkS4iZPxs3vO4XtBW4H38HRAKkAMIK7DA==}
@@ -2940,6 +2949,21 @@ packages:
   ansis@4.5.0:
     resolution: {integrity: sha512-KwIVkfFfJSSzBmZhDGuTmkhWqTdyB5oNVzzznBJbBZ5bZtHiqSrcugRF0RKJKT4Ss3d7ZrcjnlFVDlQNmtWfWw==}
     engines: {node: '>=14'}
+
+  apeiro@0.1.0:
+    resolution: {integrity: sha512-zCqT5UB6qHEu/mNyEdHS2u0CqN+FrKkOyJC/7IFBwcVhn3xm0WyjGNGPykELaWK8BLnpgihzVM5Q2BqYSD6New==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      react: ^18.2.0 || ^19.0.0
+      y-protocols: ^1.0.6
+      yjs: ^13.6.0
+    peerDependenciesMeta:
+      react:
+        optional: true
+      y-protocols:
+        optional: true
+      yjs:
+        optional: true
 
   append-field@1.0.0:
     resolution: {integrity: sha512-klpgFSWLW1ZEs8svjfb7g4qWY0YS5imI82dTg+QahUvJ8YqAY0P10Uk8tTyh9ZGuYEZEMaeJYCF5BFuX552hsw==}
@@ -5643,6 +5667,8 @@ snapshots:
 
   '@lukeed/csprng@1.1.0': {}
 
+  '@mapbox/tiny-sdf@2.3.0': {}
+
   '@microsoft/tsdoc@0.17.1': {}
 
   '@msgpackr-extract/msgpackr-extract-darwin-arm64@3.0.7':
@@ -6861,6 +6887,14 @@ snapshots:
   ansi-styles@6.2.3: {}
 
   ansis@4.5.0: {}
+
+  apeiro@0.1.0(react@19.2.8)(y-protocols@1.0.7(yjs@13.6.33))(yjs@13.6.33):
+    dependencies:
+      '@mapbox/tiny-sdf': 2.3.0
+    optionalDependencies:
+      react: 19.2.8
+      y-protocols: 1.0.7(yjs@13.6.33)
+      yjs: 13.6.33
 
   append-field@1.0.0: {}
 

@@ -21,6 +21,7 @@
     "@hookform/resolvers": "catalog:",
     "@tabula/contracts": "workspace:*",
     "@tanstack/react-query": "catalog:",
+    "apeiro": "catalog:",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
     "lucide-react": "catalog:",
