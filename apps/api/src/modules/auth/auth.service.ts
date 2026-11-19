@@ -7,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class AuthService {
     private readonly emailLinkCooldowns = new Set<string>()
-    
+
     constructor(
         private prismaService: PrismaService,
         private mailer: Mailer,

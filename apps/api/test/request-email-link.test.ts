@@ -100,3 +100,44 @@ it("отправляет только одну ссылку при двух бы
     await app.close();
   }
 });
+
+
+it("отправляет больше запросов с одного ip, чем допустимо", async () => {
+  vi.stubEnv("APP_URL", "http://localhost:3000");
+
+  const create = vi.fn().mockResolvedValue(undefined);
+  const mailbox = new InMemoryMailTransport();
+
+  const module = await Test.createTestingModule({ imports: [AppModule] })
+    .overrideProvider(PrismaService)
+    .useValue({ emailVerificationToken: { create } })
+    .overrideProvider(MailTransport)
+    .useValue(mailbox)
+    .compile();
+
+  const app = module.createNestApplication({ logger: false });
+
+  try {
+    app.setGlobalPrefix("api");
+    await app.listen(0, "127.0.0.1");
+    
+    const url = `${await app.getUrl()}/api/auth/email-link`;
+    const statuses: number[] = [];
+
+    for (let i = 1; i <= 6; i += 1) {
+    const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: `test${i}@example.test` }),
+    });
+
+    statuses.push(response.status);
+    }
+
+    expect(statuses).toEqual([204, 204, 204, 204, 204, 429]);
+    expect(create).toHaveBeenCalledTimes(5);
+    expect(mailbox.mails).toHaveLength(5);
+  } finally {
+    await app.close();
+  }
+});
