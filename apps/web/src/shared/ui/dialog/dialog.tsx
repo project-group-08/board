@@ -2,14 +2,52 @@
 
 import { Dialog as BaseDialog } from "@base-ui/react/dialog";
 import { X } from "lucide-react";
+import { useContext, useLayoutEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 import { IconButton } from "../icon-button";
+import { ModalContext } from "../toast/modal-context";
 
 export type DialogProps = Omit<BaseDialog.Root.Props, "modal">;
 
 export function Dialog(props: DialogProps) {
-  return <BaseDialog.Root {...props} modal />;
+  const coordinator = useContext(ModalContext);
+  const [internalOpen, setInternalOpen] = useState(props.defaultOpen ?? false);
+  const open = props.open ?? internalOpen;
+  const release = useRef<(() => void) | null>(null);
+  const openRef = useRef(open);
+
+  useLayoutEffect(() => {
+    openRef.current = open;
+    if (open && !release.current)
+      release.current = coordinator?.enter() ?? null;
+  }, [coordinator, open]);
+  useLayoutEffect(
+    () => () => {
+      release.current?.();
+      release.current = null;
+    },
+    [coordinator],
+  );
+
+  return (
+    <BaseDialog.Root
+      {...props}
+      modal
+      onOpenChange={(next, details) => {
+        props.onOpenChange?.(next, details);
+        if (!details.isCanceled && props.open === undefined)
+          setInternalOpen(next);
+      }}
+      onOpenChangeComplete={(next) => {
+        if (!next && !openRef.current) {
+          release.current?.();
+          release.current = null;
+        }
+        props.onOpenChangeComplete?.(next);
+      }}
+    />
+  );
 }
 
 export const DialogTrigger = BaseDialog.Trigger;
