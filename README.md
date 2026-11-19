@@ -25,7 +25,7 @@
 
 ### Запуск приложений
 
-`pnpm dev:web` запускает Next.js на <http://localhost:3000>.
+`pnpm dev:web` запускает Next.js локально на <http://localhost:3000>.
 
 `pnpm dev:api` запускает NestJS на <http://localhost:4000> с перезапуском
 при изменениях. Сейчас API содержит только `GET /api/health`, который
@@ -118,25 +118,39 @@ GNU Make нужен для команд Makefile в корне проекта. �
 Copy-Item .env.example .env
 ```
 
-Соберите образы приложений:
+Соберите образ API:
 
 ```sh
 make build
 ```
 
-Запустите контейнеры в фоне:
+Запустите инфраструктуру и API в Docker:
 
 ```sh
 make up
 ```
 
+API в контейнере работает в режиме watch: изменения в `apps/api/src`
+автоматически перезапускают сервер. Пересобирать образ после правок исходников
+не нужно; пересборка потребуется при изменении зависимостей.
+
+В отдельном терминале запустите фронтенд локально:
+
+```sh
+pnpm dev:web
+```
+
+Caddy в Docker проксирует запросы сайта на локальный Next.js через
+`host.docker.internal:3000`, а `/api` и `/socket.io` — в контейнер API.
+После запуска откройте <https://localhost>.
+
 Без GNU Make выполните эквивалентную команду:
 
 ```sh
-docker compose --project-directory . --profile local -f docker/docker-compose.yml up -d
+docker compose --project-directory . --profile local -f docker-compose.yml up -d
 ```
 
-Compose-файл, Dockerfile приложений, Caddyfile и Makefile находятся в `docker/`.
+Compose-файл находится в корне; Dockerfile API и Caddyfile — в `docker/`.
 Профиль `local` включает Mailpit. Для запуска Compose напрямую из корня проекта
 используйте указанные выше `--project-directory`, `--profile` и путь к файлу.
 
@@ -156,7 +170,7 @@ make down
 Эквивалентная команда:
 
 ```sh
-docker compose --project-directory . --profile local -f docker/docker-compose.yml down
+docker compose --project-directory . --profile local -f docker-compose.yml down
 ```
 
 Посмотреть логи в реальном времени:
@@ -168,7 +182,7 @@ make logs
 Эквивалентная команда:
 
 ```sh
-docker compose --project-directory . --profile local -f docker/docker-compose.yml logs -f
+docker compose --project-directory . --profile local -f docker-compose.yml logs -f
 ```
 
 ## Ветки и коммиты

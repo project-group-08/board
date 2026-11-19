@@ -2,5 +2,5 @@
   @api path /api /api/* /socket.io /socket.io/*
   reverse_proxy @api api:4000
 
-  reverse_proxy web:3000
+  reverse_proxy host.docker.internal:3000
 }
