@@ -1,0 +1,25 @@
+# Git и локальные настройки
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+
+# Установленные зависимости
+node_modules
+**/node_modules
+
+# Кэши и результаты сборки
+.turbo
+**/.turbo
+.next
+**/.next
+dist
+**/dist
+build
+**/build
+coverage
+**/coverage
+
+# Логи
+*.log
