@@ -15,7 +15,11 @@ export function readSessionCookie(header: string | undefined, name: string) {
     .find((cookie) => cookie.startsWith(prefix))
     ?.slice(prefix.length);
 
-  return value && /^[A-Za-z0-9_-]{43}$/.test(value) ? value : undefined;
+  const pattern =
+    name === REFRESH_COOKIE
+      ? /^[A-Za-z0-9_-]{43}(?:\.[A-Za-z0-9_-]{43})?$/
+      : /^[A-Za-z0-9_-]{43}$/;
+  return value && pattern.test(value) ? value : undefined;
 }
 
 export function setSessionCookies(

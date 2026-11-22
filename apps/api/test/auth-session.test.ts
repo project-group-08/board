@@ -205,3 +205,43 @@ it("при выходе отзывает сессию и очищает обе c
       .every((cookie) => cookie.includes("Max-Age=0")),
   ).toBe(true);
 });
+
+it("отзывает обновлённую сессию, если выход отправили со старой cookie", async () => {
+  const database = mockDatabase();
+  app = await setup(database);
+  const cookie = `tabula_refresh=${token}`;
+  const refreshed = await app.request("refresh", "POST", undefined, cookie);
+  const newCookie = refreshed.headers.getSetCookie()[1]?.split(";")[0];
+  expect(refreshed.status).toBe(204);
+  expect(newCookie?.startsWith(`tabula_refresh=${token}.`)).toBe(true);
+  await app.request("logout", "POST", undefined, cookie);
+
+  expect(database.session.updateMany).toHaveBeenLastCalledWith({
+    where: {
+      revoked_at: null,
+      OR: [
+        {
+          refresh_family_hash: new Uint8Array(
+            createHash("sha256").update(token).digest(),
+          ),
+        },
+      ],
+    },
+    data: { revoked_at: expect.any(Date) },
+  });
+});
+
+it("отклоняет имя, которое PostgreSQL не сможет сохранить", async () => {
+  const database = mockDatabase();
+  app = await setup(database);
+
+  const response = await app.request(
+    "profile",
+    "PATCH",
+    { username: "Имя" + String.fromCharCode(0) },
+    `tabula_access=${token}`,
+  );
+
+  expect(response.status).toBe(400);
+  expect(database.user.update).not.toHaveBeenCalled();
+});

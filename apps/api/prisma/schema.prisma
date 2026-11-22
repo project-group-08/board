@@ -40,6 +40,7 @@ model Session {
   user                  User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
   access_token_hash     Bytes      @unique @db.ByteA
   refresh_token_hash    Bytes      @unique @db.ByteA
+  refresh_family_hash   Bytes      @unique @db.ByteA
   access_expires_at     DateTime   @db.Timestamptz(6)
   refresh_expires_at    DateTime   @db.Timestamptz(6)
   created_at            DateTime   @default(now()) @db.Timestamptz(6)

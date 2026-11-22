@@ -19,7 +19,12 @@ export const AuthSessionSchema = z.object({
 export type AuthSession = z.infer<typeof AuthSessionSchema>;
 
 export const UpdateAuthProfileSchema = z.object({
-  username: z.string().trim().min(1).max(100),
+  username: z
+    .string()
+    .trim()
+    .min(1)
+    .max(100)
+    .refine((username) => !username.includes(String.fromCharCode(0))),
 });
 
 export type UpdateAuthProfile = z.infer<typeof UpdateAuthProfileSchema>;

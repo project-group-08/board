@@ -7,9 +7,13 @@ import { createAuthToken, hashAuthToken } from "./auth-token.js";
 const ACCESS_TTL = 15 * 60_000;
 const REFRESH_TTL = 30 * 24 * 60 * 60_000;
 
-function issueCredentials(now: Date) {
+function refreshFamily(refreshToken: string) {
+  return refreshToken.slice(0, 43);
+}
+
+function issueCredentials(now: Date, family: string) {
   const accessToken = createAuthToken();
-  const refreshToken = createAuthToken();
+  const refreshToken = `${family}.${createAuthToken()}`;
   const accessExpiresAt = new Date(now.getTime() + ACCESS_TTL);
   const refreshExpiresAt = new Date(now.getTime() + REFRESH_TTL);
 
@@ -31,8 +35,15 @@ export class SessionService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async create(tx: Prisma.TransactionClient, userId: number, now: Date) {
-    const { cookies, data } = issueCredentials(now);
-    await tx.session.create({ data: { user_id: userId, ...data } });
+    const family = createAuthToken();
+    const { cookies, data } = issueCredentials(now, family);
+    await tx.session.create({
+      data: {
+        user_id: userId,
+        refresh_family_hash: hashAuthToken(family),
+        ...data,
+      },
+    });
     return cookies;
   }
 
@@ -42,7 +53,10 @@ export class SessionService {
     }
 
     const now = new Date();
-    const { cookies, data } = issueCredentials(now);
+    const { cookies, data } = issueCredentials(
+      now,
+      refreshFamily(refreshToken),
+    );
     const { count } = await this.prisma.session.updateMany({
       where: {
         refresh_token_hash: hashAuthToken(refreshToken),
@@ -86,7 +100,9 @@ export class SessionService {
   ) {
     const credentials: Prisma.SessionWhereInput[] = [];
     if (refreshToken) {
-      credentials.push({ refresh_token_hash: hashAuthToken(refreshToken) });
+      credentials.push({
+        refresh_family_hash: hashAuthToken(refreshFamily(refreshToken)),
+      });
     }
     if (accessToken) {
       credentials.push({ access_token_hash: hashAuthToken(accessToken) });
