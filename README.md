@@ -29,8 +29,9 @@
 
 `pnpm dev:api` запускает NestJS на <http://localhost:4000> с перезапуском
 при изменениях. Для авторизации настройте `apps/api/.env` по шаблону,
-поднимите локальные PostgreSQL и Mailpit и примените миграции Prisma из
-`apps/api`. Запуск и сборка генерируют клиент Prisma и собирают контракты.
+поднимите локальные PostgreSQL и Mailpit. Примените миграции из корня проекта
+командой `pnpm --filter @tabula/api exec prisma migrate deploy`. Запуск и сборка
+генерируют клиент Prisma и собирают контракты.
 
 `pnpm dev` запускает оба приложения через Turborepo. Команды
 `pnpm build:web` и `pnpm build:api` собирают приложения отдельно.

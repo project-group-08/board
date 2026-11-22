@@ -8,7 +8,8 @@ import { AppModule } from "./app.module.js";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  const trustedProxy = app.get(ConfigService).get<string>("TRUSTED_PROXY");
+  const config = app.get(ConfigService);
+  const trustedProxy = config.get<string>("TRUSTED_PROXY");
   if (trustedProxy) {
     app.set("trust proxy", trustedProxy);
   }
@@ -16,7 +17,9 @@ async function bootstrap() {
   app.setGlobalPrefix("api");
   app.enableShutdownHooks();
 
-  await app.listen(4000, "localhost");
+  const host =
+    config.get("NODE_ENV") === "production" ? "0.0.0.0" : "localhost";
+  await app.listen(4000, host);
 }
 
 bootstrap().catch(() => {
