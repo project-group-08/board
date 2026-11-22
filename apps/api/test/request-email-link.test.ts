@@ -1,16 +1,22 @@
 import "reflect-metadata";
+import { InMemoryMailTransport, MailTransport } from "@nestjs/mail";
 import { Test } from "@nestjs/testing";
-import { expect, it, vi } from "vitest";
-import { PrismaService } from "../src/prisma/prisma.service.js";
+import { afterEach, expect, it, vi } from "vitest";
 
 import { AppModule } from "../src/app.module.js";
-import { InMemoryMailTransport, MailTransport } from "@nestjs/mail";
+import { PrismaService } from "../src/prisma/prisma.service.js";
+
+afterEach(() => {
+  vi.unstubAllEnvs();
+});
 
 it("возвращает 400, если передали неверный email", async () => {
   const module = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(PrismaService)
     .useValue({
-    emailVerificationToken: { create: vi.fn().mockResolvedValue(undefined) },
+      emailVerificationToken: {
+        create: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+      },
     })
     .compile();
   const app = module.createNestApplication({ logger: false });
@@ -31,7 +37,6 @@ it("возвращает 400, если передали неверный email",
   }
 });
 
-
 it("возвращает 204, если передали верный email", async () => {
   vi.stubEnv("APP_URL", "http://localhost:3000");
 
@@ -39,7 +44,9 @@ it("возвращает 204, если передали верный email", asy
   const module = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(PrismaService)
     .useValue({
-    emailVerificationToken: { create: vi.fn().mockResolvedValue(undefined) },
+      emailVerificationToken: {
+        create: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+      },
     })
     .overrideProvider(MailTransport)
     .useValue(mailbox)
@@ -57,7 +64,7 @@ it("возвращает 204, если передали верный email", asy
     });
 
     expect(response.status).toBe(204);
-    mailbox.assertSent({to: "test@example.test"})
+    mailbox.assertSent({ to: "test@example.test" });
   } finally {
     await app.close();
   }
@@ -66,7 +73,7 @@ it("возвращает 204, если передали верный email", asy
 it("отправляет только одну ссылку при двух быстрых запросах", async () => {
   vi.stubEnv("APP_URL", "http://localhost:3000");
 
-  const create = vi.fn().mockResolvedValue(undefined);
+  const create = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
   const mailbox = new InMemoryMailTransport();
 
   const module = await Test.createTestingModule({ imports: [AppModule] })
@@ -101,11 +108,10 @@ it("отправляет только одну ссылку при двух бы
   }
 });
 
-
 it("отправляет больше запросов с одного ip, чем допустимо", async () => {
   vi.stubEnv("APP_URL", "http://localhost:3000");
 
-  const create = vi.fn().mockResolvedValue(undefined);
+  const create = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
   const mailbox = new InMemoryMailTransport();
 
   const module = await Test.createTestingModule({ imports: [AppModule] })
@@ -120,23 +126,53 @@ it("отправляет больше запросов с одного ip, че�
   try {
     app.setGlobalPrefix("api");
     await app.listen(0, "127.0.0.1");
-    
+
     const url = `${await app.getUrl()}/api/auth/email-link`;
     const statuses: number[] = [];
 
     for (let i = 1; i <= 6; i += 1) {
-    const response = await fetch(url, {
+      const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: `test${i}@example.test` }),
-    });
+      });
 
-    statuses.push(response.status);
+      statuses.push(response.status);
     }
 
     expect(statuses).toEqual([204, 204, 204, 204, 204, 429]);
     expect(create).toHaveBeenCalledTimes(5);
     expect(mailbox.mails).toHaveLength(5);
+  } finally {
+    await app.close();
+  }
+});
+
+it("возвращает 400, если токен имеет неверный формат", async () => {
+  const module = await Test.createTestingModule({ imports: [AppModule] })
+    .overrideProvider(PrismaService)
+    .useValue({
+      emailVerificationToken: {
+        create: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+      },
+    })
+    .compile();
+  const app = module.createNestApplication({ logger: false });
+
+  try {
+    app.setGlobalPrefix("api");
+    await app.listen(0, "127.0.0.1");
+
+    const response = await fetch(
+      `${await app.getUrl()}/api/auth/email-link/verify`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: "short" }),
+      },
+    );
+
+    expect(response.status).toBe(400);
   } finally {
     await app.close();
   }

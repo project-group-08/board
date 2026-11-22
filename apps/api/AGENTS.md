@@ -6,12 +6,12 @@ NestJS 12, Socket.IO 4 и Prisma 7 ([ADR-0009](../../docs/adr/0009-nestjs-prisma
 
 ## Команды
 
-- `pnpm --filter @tabula/api dev`: NestJS на `http://localhost:4000` с перезапуском при изменениях; `.env` не требуется.
+- `pnpm --filter @tabula/api dev`: NestJS на `http://localhost:4000` с перезапуском при изменениях; для модуля авторизации нужен локальный PostgreSQL.
 - `pnpm --filter @tabula/api build`: сборка в `dist`.
 - `pnpm --filter @tabula/api start`: запуск собранного приложения; локальный `.env` загружается, если существует.
 - `pnpm --filter @tabula/api check-types`: TypeScript без сборки.
-- `pnpm --filter @tabula/api test`: `vitest run`; файлов тестов пока нет.
-- Prisma-схема и команды миграций появятся с первой задачей хранения данных; до неё миграции не запускаем.
+- `pnpm --filter @tabula/api test`: `vitest run`, PostgreSQL и почтовый транспорт в тестах подменяются.
+- Схема и миграции в `prisma/`. Перед первым запуском применяй миграции только к локальной БД.
 
 ## Правила
 
@@ -29,7 +29,7 @@ NestJS 12, Socket.IO 4 и Prisma 7 ([ADR-0009](../../docs/adr/0009-nestjs-prisma
 - Ключи LLM, S3, Telegram и SMTP живут только здесь и в `apps/worker`.
 - Схему базы меняем только миграциями Prisma из репозитория (`apps/api/prisma`).
 - Prisma 7: у CLI метка `latest` в npm указывает на 8.0 RC, версию из catalog не поднимай, `prisma` и `@prisma/client` держим одной версии.
-- Текущий API содержит только `GET /api/health` и запускается без Postgres, Redis и переменных окружения. Когда появятся подключения, внешние сервисы при разработке запускаем локально из Docker Compose.
+- Для запуска авторизации нужны `DATABASE_URL`, `APP_URL` и локальные PostgreSQL и Mailpit. За Caddy задавай `TRUSTED_PROXY` адресом или подсетью доверенного прокси, чтобы ограничение по IP считалось по клиентам.
 
 ## Документация
 
