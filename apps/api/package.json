@@ -9,7 +9,11 @@
     "start": "node --env-file-if-exists=.env dist/main.js",
     "check-types": "tsc --noEmit",
     "lint": "oxlint --config ../../.oxlintrc.json .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "predev": "tsc --project ../../packages/contracts && prisma generate",
+    "prebuild": "tsc --project ../../packages/contracts && prisma generate",
+    "pretest": "tsc --project ../../packages/contracts && prisma generate",
+    "precheck-types": "tsc --project ../../packages/contracts && prisma generate"
   },
   "dependencies": {
     "@nestjs/bullmq": "catalog:",

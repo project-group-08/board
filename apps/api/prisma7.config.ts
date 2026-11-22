@@ -1,5 +1,11 @@
-import "dotenv/config";
+import { existsSync } from "node:fs";
+import { env, loadEnvFile } from "node:process";
+
 import { defineConfig } from "prisma/config";
+
+if (existsSync(".env")) {
+  loadEnvFile(".env");
+}
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
@@ -7,6 +13,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    url: env.DATABASE_URL,
   },
 });
