@@ -3,14 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "dependencies": {
-    "zod": "catalog:"
-  },
   "exports": {
-  "./http/auth": "./dist/http/auth.js"
+    "./http/auth": "./dist/http/auth.js"
   },
   "scripts": {
     "build": "tsc"
+  },
+  "dependencies": {
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@tabula/typescript-config": "workspace:*",
