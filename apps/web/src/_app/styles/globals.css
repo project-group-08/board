@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @source '../../../.storybook';
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 @theme inline {
   --color-background: var(--color-background);
   --color-foreground: var(--color-foreground);
