@@ -1,10 +1,10 @@
 import { useTheme as useNextTheme } from "next-themes";
 import { useCallback } from "react";
 
-export type Theme = "light" | "dark" | "system";
+export type Theme = "light" | "dark";
 
 export type UseThemeResult = {
-  theme: Theme;
+  theme: Theme | undefined;
   setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
 };
@@ -12,10 +12,10 @@ export type UseThemeResult = {
 export const useTheme = (): UseThemeResult => {
   const { resolvedTheme, setTheme } = useNextTheme();
 
-  const theme: Theme =
+  const theme =
     resolvedTheme === "light" || resolvedTheme === "dark"
       ? resolvedTheme
-      : "system";
+      : undefined;
 
   const toggleTheme = useCallback(() => {
     setTheme(resolvedTheme === "dark" ? "light" : "dark");

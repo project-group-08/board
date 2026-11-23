@@ -29,15 +29,20 @@ describe("useTheme", () => {
     expect(renderTheme().theme).toBe("dark");
   });
 
-  it("возвращает системную тему, пока она еще не определена", () => {
+  it("возвращает undefined, пока тема ещё не определена", () => {
     mockNextTheme(undefined);
-    expect(renderTheme().theme).toBe("system");
+    expect(renderTheme().theme).toBeUndefined();
+  });
+
+  it("не отдаёт системную тему наружу", () => {
+    mockNextTheme("system");
+    expect(renderTheme().theme).toBeUndefined();
   });
 
   it("ставит выбранную тему", () => {
     const setTheme = mockNextTheme("light");
-    renderTheme().setTheme("system");
-    expect(setTheme).toHaveBeenCalledWith("system");
+    renderTheme().setTheme("dark");
+    expect(setTheme).toHaveBeenCalledWith("dark");
   });
 
   it("переключает светлую тему на тёмную", () => {
