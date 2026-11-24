@@ -14,6 +14,7 @@ export type ToolGroupProps = {
   children: ReactNode;
   selected?: boolean;
   disabled?: boolean;
+  menuWidth?: number;
   onSelect: () => void;
 };
 
@@ -24,6 +25,7 @@ export function ToolGroup({
   children,
   selected = false,
   disabled = false,
+  menuWidth,
   onSelect,
 }: ToolGroupProps) {
   const [open, setOpen] = useState(false);
@@ -53,7 +55,10 @@ export function ToolGroup({
           <ChevronDown aria-hidden="true" size={16} strokeWidth={2.25} />
         </MenuTrigger>
       </div>
-      <MenuContent finalFocus={disabled ? false : undefined}>
+      <MenuContent
+        finalFocus={disabled ? false : undefined}
+        style={menuWidth === undefined ? undefined : { width: menuWidth }}
+      >
         {children}
       </MenuContent>
     </Menu>

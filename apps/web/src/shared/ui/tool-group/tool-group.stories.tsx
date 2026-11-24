@@ -1,5 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Hand, MousePointer2 } from "lucide-react";
+import {
+  Circle,
+  Hand,
+  Image,
+  MousePointer2,
+  Pentagon,
+  Square,
+  AudioLines,
+} from "lucide-react";
 import { useState } from "react";
 
 import { ToolGroup } from ".";
@@ -70,6 +78,68 @@ export const Interactive: Story = {
   render: () => (
     <div className="p-[var(--space-64)]">
       <Example />
+    </div>
+  ),
+};
+
+function SvgMenuExample({ media = false }: { media?: boolean }) {
+  const items = media
+    ? ([
+        { name: "Изображение", icon: <Image />, shortcut: "Ctrl Shift K" },
+        { name: "Аудио", icon: <AudioLines />, shortcut: undefined },
+      ] as const)
+    : ([
+        { name: "Прямоугольник", icon: <Square />, shortcut: "R" },
+        { name: "Эллипс", icon: <Circle />, shortcut: "O" },
+        { name: "Многоугольник", icon: <Pentagon />, shortcut: undefined },
+      ] as const);
+  const [value, setValue] = useState<string>(items[0].name);
+  const current = items.find((item) => item.name === value) ?? items[0];
+
+  return (
+    <ToolGroup
+      label={`Выбрать: ${current.name}`}
+      menuLabel={media ? "Меню медиа" : "Меню фигур"}
+      icon={current.icon}
+      selected
+      menuWidth={media ? 264 : 216}
+      onSelect={() => {}}
+    >
+      <MenuRadioGroup value={value} onValueChange={setValue}>
+        {items.map((item) => (
+          <MenuRadioItem
+            key={item.name}
+            value={item.name}
+            icon={item.icon}
+            shortcut={item.shortcut}
+          >
+            {item.name}
+          </MenuRadioItem>
+        ))}
+      </MenuRadioGroup>
+    </ToolGroup>
+  );
+}
+
+export const ToolMenus: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Примеры фигур (216 px) и медиа (264 px) по SVG. Подсказки клавиш только отображаются; выбор хранится в примере. Тема переключается кнопкой Theme.",
+      },
+    },
+  },
+  render: () => (
+    <div className="flex flex-wrap gap-[var(--space-64)] p-[var(--space-64)]">
+      <div>
+        <SvgMenuExample />
+        <p>Фигуры — 216 px</p>
+      </div>
+      <div>
+        <SvgMenuExample media />
+        <p>Медиа — 264 px</p>
+      </div>
     </div>
   ),
 };

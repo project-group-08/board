@@ -7,6 +7,32 @@ import { ToolGroup } from ".";
 import { MenuItem } from "../menu";
 
 describe("ToolGroup", () => {
+  it.each([
+    { menuWidth: undefined, expected: undefined },
+    { menuWidth: 216, expected: "216px" },
+    { menuWidth: 264, expected: "264px" },
+  ])(
+    "preserves the available-width limit with menuWidth=$menuWidth",
+    async ({ menuWidth, expected }) => {
+      const user = userEvent.setup();
+      render(
+        <ToolGroup
+          label="Указатель"
+          menuLabel="Инструменты"
+          icon="иконка"
+          menuWidth={menuWidth}
+          onSelect={() => {}}
+        >
+          <MenuItem>Пункт</MenuItem>
+        </ToolGroup>,
+      );
+      await user.click(screen.getByRole("button", { name: "Инструменты" }));
+      const menu = await screen.findByRole("menu");
+      expect(menu).toHaveClass("w-[192px]", "max-w-[var(--available-width)]");
+      expect(menu.style.width).toBe(expected ?? "");
+    },
+  );
+
   it("keeps actions independent and lets the consumer update the icon", async () => {
     const user = userEvent.setup();
     const select = vi.fn<() => void>();
