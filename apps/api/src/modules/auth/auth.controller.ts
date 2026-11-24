@@ -27,6 +27,7 @@ import {
   type VerifyEmailLink,
 } from "@tabula/contracts/http/auth";
 
+import { AuthJsonGuard, AuthOriginGuard } from "./auth-request.guard.js";
 import { AuthService } from "./auth.service.js";
 import {
   ACCESS_COOKIE,
@@ -58,7 +59,7 @@ export class AuthController {
   }
 
   @Post("email-link/verify")
-  @UseGuards(ThrottlerGuard)
+  @UseGuards(AuthOriginGuard, AuthJsonGuard, ThrottlerGuard)
   @HttpCode(HttpStatus.OK)
   @Header("Cache-Control", "no-store")
   @ApiOkResponse({ standardSchema: AuthSessionSchema })
@@ -78,6 +79,7 @@ export class AuthController {
   }
 
   @Post("refresh")
+  @UseGuards(AuthOriginGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Header("Cache-Control", "no-store")
   async refresh(
@@ -91,6 +93,7 @@ export class AuthController {
   }
 
   @Post("logout")
+  @UseGuards(AuthOriginGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Header("Cache-Control", "no-store")
   async logout(
@@ -112,6 +115,7 @@ export class AuthController {
   }
 
   @Patch("profile")
+  @UseGuards(AuthOriginGuard)
   @Header("Cache-Control", "no-store")
   @ApiOkResponse({ standardSchema: AuthSessionSchema })
   updateProfile(

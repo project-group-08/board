@@ -37,15 +37,16 @@ it("возвращает 400, если передали неверный email",
   }
 });
 
-it("возвращает 204, если передали верный email", async () => {
+it("записывает и отправляет ссылку на один нормализованный email", async () => {
   vi.stubEnv("APP_URL", "http://localhost:3000");
 
+  const create = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
   const mailbox = new InMemoryMailTransport();
   const module = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(PrismaService)
     .useValue({
       emailVerificationToken: {
-        create: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+        create,
       },
     })
     .overrideProvider(MailTransport)
@@ -60,11 +61,18 @@ it("возвращает 204, если передали верный email", asy
     const response = await fetch(`${await app.getUrl()}/api/auth/email-link`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: "test@example.test" }),
+      body: JSON.stringify({ email: "Test@Example.test" }),
     });
 
     expect(response.status).toBe(204);
-    mailbox.assertSent({ to: "test@example.test" });
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ email: "test@example.test" }),
+      }),
+    );
+    expect(mailbox.mails[0]?.message.envelope.to).toEqual([
+      "test@example.test",
+    ]);
   } finally {
     await app.close();
   }
@@ -149,6 +157,7 @@ it("отправляет больше запросов с одного ip, че�
 });
 
 it("возвращает 400, если токен имеет неверный формат", async () => {
+  vi.stubEnv("APP_URL", "http://localhost:3000");
   const module = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(PrismaService)
     .useValue({
@@ -167,7 +176,10 @@ it("возвращает 400, если токен имеет неверный ф
       `${await app.getUrl()}/api/auth/email-link/verify`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          Origin: "http://localhost:3000",
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ token: "short" }),
       },
     );

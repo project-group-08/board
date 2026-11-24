@@ -8,6 +8,7 @@ import { afterEach, expect, it, vi } from "vitest";
 import { AppModule } from "../src/app.module.js";
 import { PrismaService } from "../src/prisma/prisma.service.js";
 
+const appOrigin = "https://tabula.example.test";
 const token = randomBytes(32).toString("base64url");
 
 function mockDatabase(username: string | null = null) {
@@ -50,6 +51,7 @@ function mockDatabase(username: string | null = null) {
 }
 
 async function setup(database: ReturnType<typeof mockDatabase>) {
+  vi.stubEnv("APP_URL", appOrigin);
   const module = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(PrismaService)
     .useValue(database)
@@ -63,12 +65,14 @@ async function setup(database: ReturnType<typeof mockDatabase>) {
   const url = await app.getUrl();
 
   return {
+    url,
     close: () => app.close(),
     request: (path: string, method: string, body?: object, cookie?: string) =>
       fetch(`${url}/api/auth/${path}`, {
         method,
         headers: {
-          "Content-Type": "application/json",
+          Origin: appOrigin,
+          "Content-Type": "application/json; charset=utf-8",
           ...(cookie ? { Cookie: cookie } : {}),
         },
         body: body && JSON.stringify(body),
@@ -81,6 +85,75 @@ let app: Awaited<ReturnType<typeof setup>> | undefined;
 afterEach(async () => {
   await app?.close();
   app = undefined;
+  vi.unstubAllEnvs();
+});
+
+it.each([
+  undefined,
+  "null",
+  "https://other.example.test",
+  "https://tabula.example.test:8443",
+])(
+  "отклоняет подтверждение ссылки с Origin %s до транзакции",
+  async (origin) => {
+    const database = mockDatabase();
+    app = await setup(database);
+
+    const response = await fetch(`${app.url}/api/auth/email-link/verify`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(origin === undefined ? {} : { Origin: origin }),
+      },
+      body: JSON.stringify({ token }),
+    });
+
+    expect(response.status).toBe(403);
+    expect(response.headers.getSetCookie()).toEqual([]);
+    expect(database.$transaction).not.toHaveBeenCalled();
+  },
+);
+
+it("отклоняет подтверждение ссылки через форму с разрешённого Origin", async () => {
+  const database = mockDatabase();
+  app = await setup(database);
+
+  const response = await fetch(`${app.url}/api/auth/email-link/verify`, {
+    method: "POST",
+    headers: { Origin: appOrigin },
+    body: new URLSearchParams({ token }),
+  });
+
+  expect(response.status).toBe(415);
+  expect(response.headers.getSetCookie()).toEqual([]);
+  expect(database.$transaction).not.toHaveBeenCalled();
+});
+
+it("отклоняет обновление, выход и изменение профиля со стороннего Origin", async () => {
+  const database = mockDatabase();
+  app = await setup(database);
+  const headers = {
+    Origin: "https://other.example.test",
+    Cookie: `tabula_access=${token}; tabula_refresh=${token}`,
+    "Content-Type": "application/json",
+  };
+  const responses = await Promise.all([
+    fetch(`${app.url}/api/auth/refresh`, { method: "POST", headers }),
+    fetch(`${app.url}/api/auth/logout`, { method: "POST", headers }),
+    fetch(`${app.url}/api/auth/profile`, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify({ username: "Никита" }),
+    }),
+  ]);
+
+  expect(responses.map((response) => response.status)).toEqual([403, 403, 403]);
+  expect(
+    responses.flatMap((response) => response.headers.getSetCookie()),
+  ).toEqual([]);
+  expect(database.session.updateMany).not.toHaveBeenCalled();
+  expect(database.session.findUnique).not.toHaveBeenCalled();
+  expect(database.user.update).not.toHaveBeenCalled();
 });
 
 it("отклоняет ссылку, для которой нет действующего токена", async () => {

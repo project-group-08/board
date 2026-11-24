@@ -61,7 +61,7 @@ export class AuthService {
     });
 
     await this.mailer.send({
-      to: email,
+      to: normalizedEmail,
       subject: "Вход в Tabula",
       text: `Перейдите по ссылке для входа: ${link.href}`,
     });
