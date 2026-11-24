@@ -1,5 +1,6 @@
 import { ArrowRight, Group, Moon, ZoomInIcon } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 import { Button, buttonVariants } from "@/shared/ui/button";
 import { CheckItem } from "@/shared/ui/check-item";
@@ -36,12 +37,12 @@ export function LandingPage() {
         <div className="px-3">
           <SiteHeader
             brand={
-              <a
+              <Link
                 href="/"
                 className={`text-foreground whitespace-nowrap [font:var(--type-heading-3)] ${focus}`}
               >
                 Tabula
-              </a>
+              </Link>
             }
             navigationLabel="Основная навигация"
             navigation={
@@ -194,7 +195,7 @@ export function LandingPage() {
           </section>
           <section
             id="ai"
-            className="border-border border bg-(--color-surface) px-[20px] mt-(--space-64) min-[600px]:px-[40px] min-[600px]:mt-(--space-80) min-[1013px]:mt-(--space-96) min-[1200px]:px-0"
+            className="border-border mt-(--space-64) border bg-(--color-surface) px-[20px] min-[600px]:mt-(--space-80) min-[600px]:px-[40px] min-[1013px]:mt-(--space-96) min-[1200px]:px-0"
           >
             <div className="mx-auto grid max-w-[1120px] grid-cols-1 items-center gap-(--space-32) py-(--space-64) min-[600px]:gap-[40px] min-[600px]:py-(--space-80) min-[1013px]:grid-cols-[528fr_528fr] min-[1013px]:gap-(--space-64) min-[1013px]:py-(--space-96)">
               <div className="flex flex-col">
@@ -287,7 +288,7 @@ export function LandingPage() {
           </section>
           <section
             id="faq"
-            className="border-border border bg-(--color-surface) px-[20px] mt-(--space-64) min-[600px]:px-[40px] min-[600px]:mt-(--space-80) min-[1013px]:mt-(--space-96) min-[1200px]:px-0"
+            className="border-border mt-(--space-64) border bg-(--color-surface) px-[20px] min-[600px]:mt-(--space-80) min-[600px]:px-[40px] min-[1013px]:mt-(--space-96) min-[1200px]:px-0"
           >
             <div className="mx-auto max-w-[1120px] py-(--space-64) min-[600px]:py-(--space-80) min-[1013px]:py-(--space-96)">
               <div className="grid grid-cols-1 items-start gap-(--space-32) min-[1013px]:grid-cols-[320fr_736fr] min-[1013px]:gap-(--space-64)">

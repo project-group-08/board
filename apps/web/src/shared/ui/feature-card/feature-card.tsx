@@ -22,7 +22,7 @@ export function FeatureCard(props: FeatureCardProps) {
   const { title, description, as: Heading = "h3", variant } = props;
   const media = variant !== "icon" && (
     <div
-      className={`w-full overflow-hidden rounded-(--radius-md) ${
+      className={`w-full overflow-hidden rounded-[var(--radius-md)] ${
         variant === "media-bottom" ? "min-h-0 flex-1" : ""
       }`}
     >

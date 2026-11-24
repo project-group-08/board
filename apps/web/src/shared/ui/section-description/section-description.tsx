@@ -3,14 +3,14 @@ import type { ReactNode } from "react";
 export type SectionDescriptionProps = {
   children: ReactNode;
   tone?: "on-inverse";
-  align: "center" | "left";
+  align?: "center" | "left";
   className?: string;
 };
 
 export function SectionDescription({
   children,
   tone,
-  align,
+  align = "left",
   className,
 }: SectionDescriptionProps) {
   return (
