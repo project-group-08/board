@@ -66,6 +66,7 @@ describe("SiteHeader", () => {
       "Тема",
       "Войти",
       "Начать",
+      "Открыть меню",
     ]);
     expect(
       container.querySelector("a a, a button, button a, button button"),
@@ -73,6 +74,34 @@ describe("SiteHeader", () => {
     expect(
       header.querySelectorAll('span[aria-hidden="true"].bg-border'),
     ).toHaveLength(2);
+  });
+
+  it("opens and closes the mobile menu", async () => {
+    const user = userEvent.setup();
+    render(
+      <SiteHeader
+        brand={<a href="#home">Название</a>}
+        navigationLabel="Основная навигация"
+        navigation={<a href="#features">Возможности</a>}
+        themeAction={
+          <IconButton aria-label="Тема">
+            <svg />
+          </IconButton>
+        }
+        actions={<Button>Начать</Button>}
+      />,
+    );
+
+    const openButton = screen.getByRole("button", { name: "Открыть меню" });
+    expect(openButton).toHaveAttribute("aria-expanded", "false");
+    await user.click(openButton);
+
+    const closeButton = screen.getByRole("button", { name: "Закрыть меню" });
+    expect(closeButton).toHaveAttribute("aria-expanded", "true");
+    await user.click(closeButton);
+    expect(
+      screen.getByRole("button", { name: "Открыть меню" }),
+    ).toHaveAttribute("aria-expanded", "false");
   });
 
   it("preserves link destinations and activates supplied actions by mouse and keyboard", async () => {

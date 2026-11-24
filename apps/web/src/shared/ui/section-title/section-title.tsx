@@ -1,9 +1,13 @@
+import { ReactNode } from "react";
+
 export type SectionTitleProps = {
-  title: string;
+  title: string | ReactNode;
   label?: string;
   align?: "left" | "center";
   as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
   tone?: "on-inverse";
+  className?: string;
+  adaptiveSize?: string;
 };
 
 export function SectionTitle({
@@ -12,10 +16,15 @@ export function SectionTitle({
   align = "left",
   as: Heading = "h2",
   tone,
+  className,
+  adaptiveSize
 }: SectionTitleProps) {
+  const colorClass =
+    tone === "on-inverse" ? "text-inverse-foreground" : "text-foreground";
+
   return (
     <div
-      className={`w-full min-w-0 ${align === "center" ? "text-center" : "text-left"}`}
+      className={`w-full min-w-0 ${align === "center" ? "text-center" : "text-left"} ${className}`}
     >
       {label && (
         <p
@@ -25,7 +34,7 @@ export function SectionTitle({
         </p>
       )}
       <Heading
-        className={`tracking-[var(--tracking-heading-2)] [font:var(--type-heading-2)] ${tone === "on-inverse" ? "text-inverse-foreground" : "text-foreground"}`}
+        className={`${adaptiveSize ?? "tracking-[var(--tracking-heading-2)] [font:var(--type-heading-2)]"} ${colorClass}`}
       >
         {title}
       </Heading>
