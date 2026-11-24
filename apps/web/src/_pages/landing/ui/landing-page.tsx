@@ -2,7 +2,7 @@ import { ArrowRight, Group, Moon, ZoomInIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { Button, buttonVariants } from "@/shared/ui/button";
+import { Button } from "@/shared/ui/button";
 import { CheckItem } from "@/shared/ui/check-item";
 import { Faq } from "@/shared/ui/faq";
 import { FeatureCard } from "@/shared/ui/feature-card";
@@ -13,10 +13,12 @@ import { SectionTitle } from "@/shared/ui/section-title";
 import { SiteFooter } from "@/shared/ui/site-footer";
 import { SiteHeader } from "@/shared/ui/site-header";
 
+import { LandingSection } from "./landing-section";
+
 const focus =
   "focus-visible:outline-2 focus-visible:outline-transparent focus-visible:shadow-[var(--shadow-focus)]";
 
-const labels = [
+const nav = [
   { label: "Возможности", link: "features" },
   { label: "ИИ", link: "ai" },
   { label: "Совместная работа", link: "teamwork" },
@@ -46,15 +48,12 @@ export function LandingPage() {
             }
             navigationLabel="Основная навигация"
             navigation={
-              <ul className="m-0 flex w-full list-none flex-col items-start gap-(--space-0) p-0 min-[773px]:w-auto min-[773px]:flex-row min-[773px]:items-center min-[773px]:gap-(--space-24)">
-                {labels.map(({ label, link }) => (
-                  <li
-                    key={label}
-                    className="flex h-[52px] w-full items-center min-[773px]:h-auto min-[773px]:w-auto max-[772px]:[&:not(:last-child)]:border-b max-[772px]:[&:not(:last-child)]:border-[var(--color-divider)]"
-                  >
+              <ul className="m-0 flex list-none items-center gap-[var(--space-24)] p-0">
+                {nav.map(({ label, link }) => (
+                  <li key={label} className="flex w-full items-center">
                     <NavLink
                       href={`#${link}`}
-                      className="text-foreground min-[773px]:text-muted-foreground flex w-full justify-start text-left [font:var(--type-title)] min-[773px]:w-auto min-[773px]:[font:var(--type-label)]"
+                      className="text-muted-foreground flex justify-start w-auto [font:var(--type-label)]"
                     >
                       {label}
                     </NavLink>
@@ -65,28 +64,21 @@ export function LandingPage() {
             themeAction={
               <IconButton
                 aria-label="Переключить тему"
-                className="text-foreground min-[773px]:rounded-0 border-border ml-auto size-11 rounded-[22px] border min-[773px]:ml-0 min-[773px]:size-9 min-[773px]:border-0"
+                className="text-foreground rounded-0 border-border rounded-[22px] size-9 border-0"
               >
                 <Moon strokeWidth={2.25} />
               </IconButton>
             }
             actions={
-              <div className="flex w-full flex-col gap-(--space-8) min-[773px]:w-auto min-[773px]:flex-row min-[773px]:gap-0">
-                <a
-                  href="#login"
-                  className={`border-border text-foreground inline-flex h-[44px] items-center justify-center rounded-md border px-(--space-24) [font:var(--type-label)] max-[772px]:w-full ${focus} min-[773px]:rounded-0 order-2 min-[773px]:order-1 min-[773px]:h-9 min-[773px]:w-auto min-[773px]:border-none`}
+              <div className="flex gap-(--space-8) w-auto">
+                <Button
+                  variant="ghost"
+                  size="large"
+                  className={`text-foreground inline-flex h-[36px] items-center px-[var(--space-24)] [font:var(--type-label)] ${focus}`}
                 >
                   Войти
-                </a>
-                <a
-                  href="#start"
-                  className={
-                    buttonVariants({ variant: "accent" }) +
-                    " order-1 h-[44px] max-[772px]:w-full min-[773px]:order-2 min-[773px]:h-9 min-[773px]:w-auto"
-                  }
-                >
-                  Начать
-                </a>
+                </Button>{" "}
+                <Button variant="accent">Начать</Button>
               </div>
             }
           />
@@ -133,10 +125,7 @@ export function LandingPage() {
               />
             </div>
           </section>
-          <section
-            id="features"
-            className="mx-auto max-w-[1120px] px-[20px] pt-(--space-64) min-[600px]:px-[40px] min-[600px]:pt-(--space-80) min-[1013px]:pt-(--space-96) min-[1200px]:px-0"
-          >
+          <LandingSection id="features" className="mx-auto max-w-[1120px]">
             <div className="flex flex-col gap-(--space-32) min-[600px]:gap-[40px] min-[1013px]:gap-(--space-48) min-[1013px]:pt-(--space-96)">
               <div>
                 <SectionTitle
@@ -192,10 +181,11 @@ export function LandingPage() {
                 </div>
               </div>
             </div>
-          </section>
-          <section
+          </LandingSection>
+          <LandingSection
             id="ai"
-            className="border-border mt-(--space-64) border bg-(--color-surface) px-[20px] min-[600px]:mt-(--space-80) min-[600px]:px-[40px] min-[1013px]:mt-(--space-96) min-[1200px]:px-0"
+            spacing="margin"
+            className="border-border border bg-(--color-surface)"
           >
             <div className="mx-auto grid max-w-[1120px] grid-cols-1 items-center gap-(--space-32) py-(--space-64) min-[600px]:gap-[40px] min-[600px]:py-(--space-80) min-[1013px]:grid-cols-[528fr_528fr] min-[1013px]:gap-(--space-64) min-[1013px]:py-(--space-96)">
               <div className="flex flex-col">
@@ -232,11 +222,8 @@ export function LandingPage() {
                 className="justify-self-center"
               />
             </div>
-          </section>
-          <section
-            id="teamwork"
-            className="mx-auto max-w-[1120px] px-[20px] pt-(--space-64) min-[600px]:px-[40px] min-[600px]:pt-(--space-80) min-[1013px]:pt-(--space-96) min-[1200px]:px-0"
-          >
+          </LandingSection>
+          <LandingSection id="teamwork" className="mx-auto max-w-[1120px]">
             <div className="flex flex-col gap-(--space-32) min-[600px]:gap-[40px] min-[1013px]:gap-(--space-48) min-[1013px]:pt-(--space-96)">
               <div>
                 <SectionTitle
@@ -285,10 +272,11 @@ export function LandingPage() {
                 />
               </div>
             </div>
-          </section>
-          <section
+          </LandingSection>
+          <LandingSection
             id="faq"
-            className="border-border mt-(--space-64) border bg-(--color-surface) px-[20px] min-[600px]:mt-(--space-80) min-[600px]:px-[40px] min-[1013px]:mt-(--space-96) min-[1200px]:px-0"
+            spacing="margin"
+            className="border-border border bg-(--color-surface)"
           >
             <div className="mx-auto max-w-[1120px] py-(--space-64) min-[600px]:py-(--space-80) min-[1013px]:py-(--space-96)">
               <div className="grid grid-cols-1 items-start gap-(--space-32) min-[1013px]:grid-cols-[320fr_736fr] min-[1013px]:gap-(--space-64)">
@@ -309,8 +297,8 @@ export function LandingPage() {
                 </div>
               </div>
             </div>
-          </section>
-          <section className="px-[20px] pt-(--space-64) min-[600px]:px-[40px] min-[600px]:pt-(--space-80) min-[1013px]:pt-(--space-96)">
+          </LandingSection>
+          <LandingSection>
             <div className="bg-inverse text-inverse-foreground relative isolate mx-auto mb-(--space-64) flex min-h-[320px] w-full max-w-[1120px] items-center justify-center overflow-hidden rounded-(--radius-lg) px-[20px] min-[600px]:mb-(--space-80) min-[600px]:px-[40px] min-[1013px]:mb-[92px] min-[1200px]:px-0">
               <div
                 aria-hidden="true"
@@ -345,7 +333,7 @@ export function LandingPage() {
                 </Button>
               </div>
             </div>
-          </section>
+          </LandingSection>
         </main>
       </div>
 
