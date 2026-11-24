@@ -61,7 +61,7 @@ catalog:
   "bullmq": 6.7.6
 
   # Синхронизация и документ доски.
-  "apeiro": 0.1.0
+  "apeiro": 0.2.0
   "socket.io": 4.8.4
   "socket.io-client": 4.8.4
   "y-protocols": 1.0.7
