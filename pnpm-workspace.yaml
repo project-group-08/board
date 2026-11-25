@@ -95,7 +95,7 @@ minimumReleaseAgeExclude:
   - "@oxlint-tsgolint/win32-x64@7.0.2007"
   - msw@3.0.6
   - oxlint-tsgolint@7.0.2007
-  - apeiro@0.1.0
+  - apeiro@0.1.0 || 0.2.0
 
 # Oxlint исполняет плагин сам: его peer-зависимость от ESLint не нужна.
 overrides:
