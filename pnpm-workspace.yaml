@@ -31,6 +31,7 @@ catalog:
   "class-variance-authority": 0.7.1
   "clsx": 2.1.1
   "lucide-react": 1.72.0
+  "next-themes": 0.4.6
   "tailwind-merge": 3.7.0
 
   # Состояние, запросы и формы.
@@ -60,6 +61,7 @@ catalog:
   "bullmq": 6.7.6
 
   # Синхронизация и документ доски.
+  "apeiro": 0.2.0
   "socket.io": 4.8.4
   "socket.io-client": 4.8.4
   "y-protocols": 1.0.7
@@ -93,6 +95,7 @@ minimumReleaseAgeExclude:
   - "@oxlint-tsgolint/win32-x64@7.0.2007"
   - msw@3.0.6
   - oxlint-tsgolint@7.0.2007
+  - apeiro@0.1.0 || 0.2.0
 
 # Oxlint исполняет плагин сам: его peer-зависимость от ESLint не нужна.
 overrides:

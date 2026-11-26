@@ -13,10 +13,10 @@
 | `apps/worker` | BullMQ: ИИ, файлы, Telegram (добавим при необходимости) | |
 | `packages/contracts` | схемы Zod и типы: DTO, события сокета, элементы доски, ответы ИИ | [packages/contracts/AGENTS.md](packages/contracts/AGENTS.md) |
 | `packages/board-doc` | устройство документа доски на Yjs, без DOM | [packages/board-doc/AGENTS.md](packages/board-doc/AGENTS.md) |
-| `packages/board-engine` | движок доски, рендер на Konva (пакет будет добавлен позже) | |
+| `apeiro` (зависимость `apps/web`) | движок доски: холст на WebGPU/WebGL2, инструменты, отмена, React-обвязка ([ADR-0013](docs/adr/0013-apeiro-board-engine.md)) | |
 | `docs/` | архитектура, решения (ADR), памятка про агентов | |
 
-Кто кого импортирует: `contracts` ничего из репозитория; `board-doc` только `contracts`; `board-engine` берёт `board-doc` и `contracts`; `apps/web` берёт `board-engine` и `contracts`; `apps/api` берёт `board-doc` и `contracts`; `apps/worker` берёт `contracts`. Обратных импортов нет. Пакеты называются `@tabula/<папка>` ([ADR-0011](docs/adr/0011-package-scope.md)).
+Кто кого импортирует: `contracts` ничего из репозитория; `board-doc` только `contracts`; `apps/web` берёт `apeiro`, `board-doc` и `contracts`; `apps/api` берёт `board-doc` и `contracts`; `apps/worker` берёт `contracts`. Обратных импортов нет. Пакеты называются `@tabula/<папка>` ([ADR-0011](docs/adr/0011-package-scope.md)).
 
 ## Команды
 
@@ -37,7 +37,7 @@
 - Oxlint: корневой `.oxlintrc.json`, отличия в `overrides`; Oxfmt: корневой `.oxfmtrc.json` ([ADR-0010](docs/adr/0010-root-lint-format-config.md)). ESLint и Prettier не ставим. Версии Oxc точные, обновляем отдельным PR ([ADR-0007](docs/adr/0007-oxlint-oxfmt.md)).
 - Zod 4: только API четвёртой версии, `import { z } from 'zod'`.
 - Yjs 13.6.x: ветку 14 (ещё не стабильна) не ставь. В репозитории одна копия `yjs`, иначе ломаются проверки instanceof.
-- Konva 10 без react-konva. React Compiler не включай: вопрос открыт (см. «Ещё не решено»), в Next 16 он выключен по умолчанию.
+- Движок доски Apeiro, версия закреплена в catalog; Konva не ставим ([ADR-0013](docs/adr/0013-apeiro-board-engine.md)). React Compiler не включай: вопрос открыт (см. «Ещё не решено»), в Next 16 он выключен по умолчанию.
 - Стили: Tailwind CSS 4 и shadcn/ui. SCSS и CSS Modules не используем. Настройки Tailwind в CSS (`@theme`), файла `tailwind.config.js` нет.
 - Node 24 (от 24.15): версия закреплена в `.nvmrc`, тот же Node в CI и Docker.
 
@@ -47,8 +47,8 @@
 2. Содержимое доски меняется только через движок, транзакцией. Копий документа в TanStack Query, `useState` или Zustand нет.
 3. Пять зон состояния: данные сервера (в том числе результаты ИИ и версии) в TanStack Query; документ доски в Y.Doc; камера, выделение, инструмент, редактируемый элемент и статус связи в движке; присутствие (курсоры, кто на доске) в своём сторе вне React; интерфейс (панели, модалки, флаги режимов вроде jobId превью) в Zustand.
 4. Присутствие и камера не попадают в Y.Doc: иначе курсоры уйдут в отмену и в версии.
-5. `konva` импортируется только в `packages/board-engine/src/render` ([ADR-0006](docs/adr/0006-konva-canvas.md)).
-6. Движок не знает про React, роли, рабочие пространства и сеть: права получает параметром `readOnly`.
+5. `apeiro` импортируется только в `apps/web`; Y.Doc для него создаёт `packages/board-doc` ([ADR-0013](docs/adr/0013-apeiro-board-engine.md)).
+6. Движок не знает про роли и рабочие пространства: права получает параметром `readOnly` или ролью из ответа `board:join`. Сокет к нему подключает приложение.
 7. Права проверяет бэк в каждом HTTP-запросе и в каждом событии сокета. Проверки на фронте нужны только интерфейсу.
 8. Контракты меняем только добавлением; бэк выкатываем раньше фронта.
 9. Движение чужого курсора не вызывает ни одной перерисовки React: это критерий приёмки доски.
@@ -139,3 +139,14 @@
 ## Код-ревью
 
 Ревью по скиллу `project-review`. Форматирование и то, что ловят oxlint, oxfmt и Steiger, не обсуждай: это проверяет CI.
+
+<!-- BEGIN:turborepo-agent-rules -->
+
+# This is NOT the Turborepo you know
+
+Turborepo configuration, task behavior, and CLI commands can vary between installed versions and may differ from your training data. Resolve the `turbo` package from this file's directory or relevant workspace; in monorepos, it may not be visible from the repository root. For example, run `node -p "require.resolve('turbo/package.json')"` from a workspace that depends on `turbo`.
+
+Read `docs/README.md` inside that installed package first, then read the relevant pages from its `docs/` directory before changing Turborepo configuration or commands. Heed deprecation notices. These bundled docs match the installed package version and are available without network access.
+
+This block is written and re-added by `turbo` before repository-scoped commands when an AI agent is detected. In the Turborepo source repository, its template is defined in `crates/turborepo-cli/src/cli/agent_guidance.rs`. Removing the managed block while updates are enabled means a later qualifying invocation will add it again. Set `"agentGuidance": true` in the root `turbo.json` or `turbo.jsonc` to opt in; this does not remove an existing block. Keep the block committed with your work to avoid an uncommitted change on the next agent invocation.
+<!-- END:turborepo-agent-rules -->
