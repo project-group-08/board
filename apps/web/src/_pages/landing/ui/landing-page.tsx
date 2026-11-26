@@ -1,4 +1,4 @@
-import { ArrowRight, Group, Moon, ZoomInIcon } from "lucide-react";
+import { ArrowRight, Group, ZoomInIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -6,7 +6,6 @@ import { Button } from "@/shared/ui/button";
 import { CheckItem } from "@/shared/ui/check-item";
 import { Faq } from "@/shared/ui/faq";
 import { FeatureCard } from "@/shared/ui/feature-card";
-import { IconButton } from "@/shared/ui/icon-button";
 import { NavLink } from "@/shared/ui/nav-link";
 import { SectionDescription } from "@/shared/ui/section-description";
 import { SectionTitle } from "@/shared/ui/section-title";
@@ -14,6 +13,7 @@ import { SiteFooter } from "@/shared/ui/site-footer";
 import { SiteHeader } from "@/shared/ui/site-header";
 
 import { LandingSection } from "./landing-section";
+import { ThemeToggle } from "./theme-toggle";
 
 const focus =
   "focus-visible:outline-2 focus-visible:outline-transparent focus-visible:shadow-[var(--shadow-focus)]";
@@ -62,12 +62,7 @@ export function LandingPage() {
               </ul>
             }
             themeAction={
-              <IconButton
-                aria-label="Переключить тему"
-                className="text-foreground rounded-0 border-border size-9 rounded-[22px] border-0"
-              >
-                <Moon strokeWidth={2.25} />
-              </IconButton>
+              <ThemeToggle className="text-foreground rounded-0 border-border size-9 rounded-[22px] border-0" />
             }
             actions={
               <div className="flex w-auto gap-(--space-8)">
@@ -103,12 +98,7 @@ export function LandingPage() {
               </div>
             }
             mobileThemeAction={
-              <IconButton
-                aria-label="Переключить тему"
-                className="text-foreground border-border size-[44px] rounded-full border"
-              >
-                <Moon strokeWidth={1.5} />
-              </IconButton>
+              <ThemeToggle className="text-foreground border-border size-[44px] rounded-full border" />
             }
           />
         </div>
