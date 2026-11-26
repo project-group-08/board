@@ -286,6 +286,84 @@ describe("Button", () => {
     expect(screen.getByRole("button")).toHaveClass("w-full");
   });
 
+  it("isolates the extra-small outline hover for buttons and links", () => {
+    for (const size of ["default", "large", "small"] as const) {
+      const classes = buttonVariants({ variant: "outline", size });
+      expect(classes).toContain("hover:not-disabled:bg-muted-hover");
+      expect(classes.split(" ")).not.toContain("hover:not-disabled:bg-muted");
+    }
+    const classes = buttonVariants({ variant: "outline", size: "extra-small" });
+    expect(classes).toContain("hover:not-disabled:bg-muted");
+    expect(classes).not.toContain("hover:not-disabled:bg-muted-hover");
+    render(
+      <>
+        <Button variant="outline" size="extra-small">
+          Подсказка
+        </Button>
+        <a href="#suggestion" className={classes}>
+          Ссылка
+        </a>
+        <Button size="extra-small">Основная</Button>
+      </>,
+    );
+    expect(screen.getByRole("button", { name: "Подсказка" })).toHaveClass(
+      "hover:not-disabled:bg-muted",
+    );
+    expect(screen.getByRole("link", { name: "Ссылка" })).toHaveClass(
+      "hover:not-disabled:bg-muted",
+    );
+    expect(screen.getByRole("button", { name: "Основная" })).toHaveClass(
+      "bg-primary",
+    );
+  });
+
+  it("preserves keyboard, disabled and loading behavior for extra-small", async () => {
+    const onClick = vi.fn<() => void>();
+    const user = userEvent.setup();
+    const { rerender } = render(
+      <Button variant="outline" size="extra-small" onClick={onClick}>
+        Подсказка
+      </Button>,
+    );
+    await user.tab();
+    expect(screen.getByRole("button")).toHaveFocus();
+    await user.keyboard("{Enter}[Space]");
+    expect(onClick).toHaveBeenCalledTimes(2);
+    rerender(
+      <Button variant="outline" size="extra-small" onClick={onClick} disabled>
+        Подсказка
+      </Button>,
+    );
+    await user.click(screen.getByRole("button"));
+    rerender(
+      <Button variant="outline" size="extra-small" onClick={onClick} loading>
+        Подсказка
+      </Button>,
+    );
+    expect(screen.getByRole("button")).toBeDisabled();
+    expect(screen.getByRole("button")).toHaveAttribute("aria-busy", "true");
+    await user.click(screen.getByRole("button"));
+    expect(onClick).toHaveBeenCalledTimes(2);
+  });
+
+  it("applies extra-small geometry in the compiled stylesheet", () => {
+    const style = document.createElement("style");
+    style.textContent = compiledCss;
+    document.head.appendChild(style);
+    try {
+      render(<Button size="extra-small">Подсказка</Button>);
+      const computed = getComputedStyle(screen.getByRole("button"));
+      expect(computed.height).toBe("28px");
+      expect(computed.paddingInline).toBe("10px");
+      expect(computed.borderRadius).toBe("8px");
+      expect(computed.fontSize).toBe("13px");
+      expect(computed.lineHeight).toBe("20px");
+      expect(computed.fontWeight).toBe("400");
+    } finally {
+      style.remove();
+    }
+  });
+
   it("keeps button and icon dimensions fixed when the root font size changes", () => {
     const style = document.createElement("style");
     style.textContent = compiledCss;

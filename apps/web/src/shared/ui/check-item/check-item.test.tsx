@@ -5,6 +5,18 @@ import { describe, expect, it } from "vitest";
 import { CheckItem } from ".";
 
 describe("CheckItem", () => {
+  it.each([
+    "Создаст черновик",
+    "Накидает идеи для мозгового штурма на стикеры",
+  ])("aligns the icon with the text block: %s", (text) => {
+    const { container } = render(<CheckItem text={text} />);
+    const item = screen.getByText(text).parentElement;
+    const icon = container.querySelector("svg");
+    expect(item).toHaveClass("items-center");
+    expect(icon).not.toHaveClass("mt-[var(--space-4)]");
+    expect(icon).toHaveAttribute("stroke-width", "2.25");
+  });
+
   it("renders the text and hides the decorative check", () => {
     const { container } = render(<CheckItem text="Создаст черновик схемы" />);
     expect(screen.getByText("Создаст черновик схемы")).toBeInTheDocument();

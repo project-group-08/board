@@ -72,8 +72,10 @@
   --font-sans: "Geist Variable", sans-serif;
   --font-mono: "Geist Mono Variable", monospace;
   --type-display: 500 60px/64px var(--font-sans);
+  --type-display-mobile: 500 36px/40px var(--font-sans);
   --tracking-display: -0.03em;
   --type-heading-2: 500 40px/48px var(--font-sans);
+  --type-heading-2-mobile: 500 28px/36px var(--font-sans);
   --tracking-heading-2: -0.02em;
   --type-title: 500 24px/32px var(--font-sans);
   --tracking-title: -0.01em;

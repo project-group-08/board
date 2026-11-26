@@ -18,7 +18,8 @@ describe("HeroTitle", () => {
       name: "Доска, где команда и ИИ проектируют вместе",
     });
     expect(heading).toHaveClass(
-      "[font:var(--type-display)]",
+      "[font:var(--type-display-mobile)]",
+      "md:[font:var(--type-display)]",
       "tracking-[var(--tracking-display)]",
       "text-foreground",
     );

@@ -13,7 +13,10 @@ const meta = {
       control: "select",
       options: ["primary", "accent", "outline", "ghost", "destructive"],
     },
-    size: { control: "select", options: ["default", "large", "small"] },
+    size: {
+      control: "select",
+      options: ["default", "large", "small", "extra-small"],
+    },
     leadingIcon: { control: false },
     trailingIcon: { control: false },
   },
@@ -58,6 +61,22 @@ export const FullWidth: Story = {
 export const Disabled: Story = { args: { disabled: true } };
 export const Loading: Story = { args: { loading: true } };
 
+export const SuggestionChip: Story = {
+  args: {
+    variant: "outline",
+    size: "extra-small",
+    children: "Сделать резюме",
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Межстрочный интервал 20 px — допущение. Высота 28 px может потребовать дополнительного решения для сенсорной зоны нажатия. Focus, disabled и loading наследуются от Button и не показаны в SVG.",
+      },
+    },
+  },
+};
+
 // export const Cascade: Story = {
 // 	render: () => (
 // 		<div style={{ width: 400 }}>
@@ -76,7 +95,7 @@ const variants = [
   "ghost",
   "destructive",
 ] as const;
-const sizes = ["default", "large", "small"] as const;
+const sizes = ["default", "large", "small", "extra-small"] as const;
 const states = ["default", "hover", "focus", "disabled", "loading"] as const;
 
 export const Matrix: Story = {
@@ -107,7 +126,15 @@ export const Matrix: Story = {
           }}
         >
           <h2 style={{ font: "var(--type-label)", marginBottom: 16 }}>
-            {size} · {size === "default" ? 36 : size === "large" ? 40 : 32} px
+            {size} ·{" "}
+            {size === "default"
+              ? 36
+              : size === "large"
+                ? 40
+                : size === "small"
+                  ? 32
+                  : 28}{" "}
+            px
           </h2>
           <div
             style={{

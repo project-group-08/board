@@ -6,7 +6,7 @@ export type HeroTitleProps = {
 
 export function HeroTitle({ children }: HeroTitleProps) {
   return (
-    <h1 className="text-foreground tracking-[var(--tracking-display)] [font:var(--type-display)]">
+    <h1 className="text-foreground tracking-[var(--tracking-display)] [font:var(--type-display-mobile)] md:[font:var(--type-display)]">
       {children}
     </h1>
   );

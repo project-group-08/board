@@ -4,7 +4,7 @@ import { LoaderCircle } from "lucide-react";
 import * as React from "react";
 import { twMerge } from "tailwind-merge";
 
-const buttonVariants = cva(
+const buttonVariantClasses = cva(
   "box-border inline-flex cursor-pointer items-center justify-center gap-[8px] rounded-[var(--radius-md)] border border-transparent font-sans text-[14px]/[20px] font-medium whitespace-nowrap focus-visible:shadow-[var(--shadow-focus)] focus-visible:outline-2 focus-visible:outline-transparent disabled:cursor-not-allowed disabled:opacity-50 disabled:data-[loading=true]:opacity-80 [&[hidden]]:hidden",
   {
     variants: {
@@ -24,11 +24,25 @@ const buttonVariants = cva(
         default: "h-[36px] px-[15px]",
         large: "h-[40px] px-[23px]",
         small: "h-[32px] px-[11px]",
+        "extra-small":
+          "h-[28px] rounded-[var(--radius-sm)] px-[10px] text-[13px]/[20px] font-normal",
       },
     },
+    compoundVariants: [
+      {
+        variant: "outline",
+        size: "extra-small",
+        className: "hover:not-disabled:bg-muted",
+      },
+    ],
     defaultVariants: { variant: "primary", size: "default" },
   },
 );
+
+function buttonVariants(...args: Parameters<typeof buttonVariantClasses>) {
+  const classes = buttonVariantClasses(...args);
+  return args[0]?.size === "extra-small" ? twMerge(classes) : classes;
+}
 
 export interface ButtonProps
   extends

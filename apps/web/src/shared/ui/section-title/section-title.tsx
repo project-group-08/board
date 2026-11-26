@@ -34,7 +34,7 @@ export function SectionTitle({
         </p>
       )}
       <Heading
-        className={`${adaptiveSize ?? "tracking-[var(--tracking-heading-2)] [font:var(--type-heading-2)]"} ${colorClass}`}
+        className={`tracking-[var(--tracking-heading-2)] [font:var(--type-heading-2-mobile)] md:[font:var(--type-heading-2)] ${tone === "on-inverse" ? "text-inverse-foreground" : "text-foreground"}`}
       >
         {title}
       </Heading>
