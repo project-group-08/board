@@ -92,6 +92,36 @@ describe("SectionTitle", () => {
     expect(wrapper).not.toHaveClass("text-left");
   });
 
+  it("replaces the default typography with adaptiveSize and keeps the tone color", () => {
+    render(
+      <SectionTitle
+        title="Заголовок"
+        tone="on-inverse"
+        adaptiveSize="text-[28px]/[36px] min-[600px]:[font:var(--type-heading-2)]"
+      />,
+    );
+    const title = screen.getByRole("heading");
+    expect(title).toHaveClass(
+      "text-[28px]/[36px]",
+      "min-[600px]:[font:var(--type-heading-2)]",
+      "text-inverse-foreground",
+    );
+    expect(title).not.toHaveClass(
+      "[font:var(--type-heading-2-mobile)]",
+      "md:[font:var(--type-heading-2)]",
+    );
+  });
+
+  it("adds className to the wrapper and never renders an undefined class", () => {
+    const { rerender } = render(
+      <SectionTitle title="Заголовок" className="mt-4" />,
+    );
+    const wrapper = screen.getByRole("heading").parentElement;
+    expect(wrapper).toHaveClass("mt-4");
+    rerender(<SectionTitle title="Заголовок" />);
+    expect(wrapper?.className).not.toContain("undefined");
+  });
+
   it.each(["h1", "h2", "h3", "h4", "h5", "h6"] as const)(
     "renders the requested %s heading",
     (as) => {

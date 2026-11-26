@@ -53,7 +53,7 @@ export function LandingPage() {
                   <li key={label} className="flex w-full items-center">
                     <NavLink
                       href={`#${link}`}
-                      className="text-muted-foreground flex justify-start w-auto [font:var(--type-label)]"
+                      className="text-muted-foreground flex w-auto justify-start [font:var(--type-label)]"
                     >
                       {label}
                     </NavLink>
@@ -64,13 +64,13 @@ export function LandingPage() {
             themeAction={
               <IconButton
                 aria-label="Переключить тему"
-                className="text-foreground rounded-0 border-border rounded-[22px] size-9 border-0"
+                className="text-foreground rounded-0 border-border size-9 rounded-[22px] border-0"
               >
                 <Moon strokeWidth={2.25} />
               </IconButton>
             }
             actions={
-              <div className="flex gap-(--space-8) w-auto">
+              <div className="flex w-auto gap-(--space-8)">
                 <Button
                   variant="ghost"
                   size="large"
@@ -80,6 +80,35 @@ export function LandingPage() {
                 </Button>{" "}
                 <Button variant="accent">Начать</Button>
               </div>
+            }
+            mobileNavigation={
+              <ul className="m-0 flex list-none flex-col gap-(--space-20) p-0 [font:var(--type-title)]">
+                {nav.map(({ label, link }) => (
+                  <li key={label}>
+                    <a href={`#${link}`} className={`text-foreground ${focus}`}>
+                      {label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            }
+            mobileActions={
+              <div className="flex flex-col gap-(--space-8)">
+                <Button variant="accent" size="large" className="w-full">
+                  Начать
+                </Button>
+                <Button variant="outline" size="large" className="w-full">
+                  Войти
+                </Button>
+              </div>
+            }
+            mobileThemeAction={
+              <IconButton
+                aria-label="Переключить тему"
+                className="text-foreground border-border size-[44px] rounded-full border"
+              >
+                <Moon strokeWidth={1.5} />
+              </IconButton>
             }
           />
         </div>
@@ -340,8 +369,6 @@ export function LandingPage() {
       <SiteFooter
         brand="Tabula"
         copyright="© 2026 Tabula. Все права защищены"
-        className="px-[20px] min-[600px]:px-[40px] min-[1200px]:px-0"
-        adaptive
       />
     </div>
   );
