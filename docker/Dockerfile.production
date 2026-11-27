@@ -1,0 +1,21 @@
+ARG NODE_VERSION
+FROM node:${NODE_VERSION}-bookworm-slim
+
+WORKDIR /workspace
+RUN corepack enable
+
+COPY . .
+RUN pnpm install --frozen-lockfile
+RUN pnpm build
+
+RUN set -eu; \
+    output=apps/web/.next/standalone; \
+    entry="$output"; \
+    if [ -f "$output/apps/web/server.js" ]; then entry="$output/apps/web"; fi; \
+    test -f "$entry/server.js"; \
+    cp -a apps/web/public "$entry/public"; \
+    cp -a apps/web/.next/static "$entry/.next/static"; \
+    ln -s "/workspace/$entry/server.js" /workspace/web-server.js
+
+ENV NODE_ENV=production
+USER node
