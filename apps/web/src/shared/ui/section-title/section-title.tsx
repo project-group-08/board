@@ -10,14 +10,17 @@ export type SectionTitleProps = {
   adaptiveSize?: string;
 };
 
+const defaultSize =
+  "tracking-[var(--tracking-heading-2)] [font:var(--type-heading-2-mobile)] md:[font:var(--type-heading-2)]";
+
 export function SectionTitle({
   title,
   label,
   align = "left",
   as: Heading = "h2",
   tone,
-  className,
-  adaptiveSize
+  className = "",
+  adaptiveSize,
 }: SectionTitleProps) {
   const colorClass =
     tone === "on-inverse" ? "text-inverse-foreground" : "text-foreground";
@@ -33,9 +36,7 @@ export function SectionTitle({
           {label}
         </p>
       )}
-      <Heading
-        className={`tracking-[var(--tracking-heading-2)] [font:var(--type-heading-2-mobile)] md:[font:var(--type-heading-2)] ${tone === "on-inverse" ? "text-inverse-foreground" : "text-foreground"}`}
-      >
+      <Heading className={`${adaptiveSize ?? defaultSize} ${colorClass}`}>
         {title}
       </Heading>
     </div>
