@@ -43,12 +43,43 @@ jobs:
     environment: production
     concurrency:
       group: production
-      cancel-in-progress: false
+      cancel-in-progress: false\
     steps:
-      - name: Trigger deployment
-        env:
-          DEPLOY_HOOK_URL: ${{ secrets.DEPLOY_HOOK_URL }}
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Build production image
         run: |
-          test -n "$DEPLOY_HOOK_URL" || { echo "Set DEPLOY_HOOK_URL in the production environment"; exit 1; }
-          curl --fail --silent --show-error --max-time 60 \
-            --output /dev/null --request POST -- "$DEPLOY_HOOK_URL"
+          git archive "$GITHUB_SHA" | docker build \
+            --build-arg NODE_VERSION="$(cat .nvmrc)" \
+            -f docker/Dockerfile.production \
+            -t "board:$GITHUB_SHA" -
+
+      - name: Deploy over SSH
+        env:
+          VPS_HOST: ${{ vars.VPS_HOST }}
+          VPS_USER: ${{ vars.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          umask 077
+          printf '%s\n' "$VPS_SSH_KEY" > "$RUNNER_TEMP/board_key"
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > "$RUNNER_TEMP/board_known_hosts"
+
+          ssh_args=(
+            -i "$RUNNER_TEMP/board_key"
+            -o BatchMode=yes
+            -o StrictHostKeyChecking=yes
+            -o UserKnownHostsFile="$RUNNER_TEMP/board_known_hosts"
+            -l "$VPS_USER"
+            -- "$VPS_HOST"
+          )
+
+          image="board:$GITHUB_SHA"
+          docker save "$image" | gzip -1 | ssh "${ssh_args[@]}" \
+            'bash -o pipefail -c "gzip -dc | docker load"'
+
+          ssh "${ssh_args[@]}" \
+            "cd /opt/board && IMAGE=$image docker compose up -d --pull missing --wait && printf '%s\n' 'IMAGE=$image' > .env"
