@@ -17,4 +17,12 @@ export default defineConfig([
       "fsd/segments-by-purpose": "off",
     },
   },
+  {
+    // Временно: переключатель будет использоваться и внутри приложения.
+    // Удалить исключение после появления второго потребителя.
+    files: ["./src/features/theme-toggle/**"],
+    rules: {
+      "fsd/insignificant-slice": "off",
+    },
+  },
 ]);
