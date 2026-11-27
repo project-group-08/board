@@ -1,0 +1,320 @@
+import "reflect-metadata";
+import { createHash, randomBytes } from "node:crypto";
+
+import { InMemoryMailTransport, MailTransport } from "@nestjs/mail";
+import { Test } from "@nestjs/testing";
+import { afterEach, expect, it, vi } from "vitest";
+
+import { AppModule } from "../src/app.module.js";
+import { PrismaService } from "../src/prisma/prisma.service.js";
+
+const appOrigin = "https://tabula.example.test";
+const token = randomBytes(32).toString("base64url");
+
+function mockDatabase(username: string | null = null) {
+  const tx = {
+    emailVerificationToken: {
+      updateManyAndReturn: vi
+        .fn<() => Promise<{ email: string }[]>>()
+        .mockResolvedValueOnce([{ email: "user@example.test" }])
+        .mockResolvedValue([]),
+    },
+    user: {
+      upsert: vi
+        .fn<() => Promise<{ id: number; username: string | null }>>()
+        .mockResolvedValue({ id: 1, username }),
+      updateMany: vi
+        .fn<() => Promise<{ count: number }>>()
+        .mockResolvedValue({ count: 1 }),
+      update: vi
+        .fn<() => Promise<{ username: string }>>()
+        .mockResolvedValue({ username: "Никита" }),
+    },
+    session: {
+      create: vi.fn<() => Promise<object>>().mockResolvedValue({}),
+      findUnique: vi
+        .fn<() => Promise<{ user: { id: number; username: string | null } }>>()
+        .mockResolvedValue({ user: { id: 1, username } }),
+      updateMany: vi
+        .fn<() => Promise<{ count: number }>>()
+        .mockResolvedValueOnce({ count: 1 })
+        .mockResolvedValue({ count: 0 }),
+    },
+  };
+
+  return {
+    ...tx,
+    $transaction: vi.fn<
+      (run: (client: typeof tx) => Promise<unknown>) => Promise<unknown>
+    >((run) => run(tx)),
+  };
+}
+
+async function setup(database: ReturnType<typeof mockDatabase>) {
+  vi.stubEnv("APP_URL", appOrigin);
+  const module = await Test.createTestingModule({ imports: [AppModule] })
+    .overrideProvider(PrismaService)
+    .useValue(database)
+    .overrideProvider(MailTransport)
+    .useValue(new InMemoryMailTransport())
+    .compile();
+
+  const app = module.createNestApplication({ logger: false });
+  app.setGlobalPrefix("api");
+  await app.listen(0, "127.0.0.1");
+  const url = await app.getUrl();
+
+  return {
+    url,
+    close: () => app.close(),
+    request: (path: string, method: string, body?: object, cookie?: string) =>
+      fetch(`${url}/api/auth/${path}`, {
+        method,
+        headers: {
+          Origin: appOrigin,
+          "Content-Type": "application/json; charset=utf-8",
+          ...(cookie ? { Cookie: cookie } : {}),
+        },
+        body: body && JSON.stringify(body),
+      }),
+  };
+}
+
+let app: Awaited<ReturnType<typeof setup>> | undefined;
+
+afterEach(async () => {
+  await app?.close();
+  app = undefined;
+  vi.unstubAllEnvs();
+});
+
+it.each([
+  undefined,
+  "null",
+  "https://other.example.test",
+  "https://tabula.example.test:8443",
+])(
+  "отклоняет подтверждение ссылки с Origin %s до транзакции",
+  async (origin) => {
+    const database = mockDatabase();
+    app = await setup(database);
+
+    const response = await fetch(`${app.url}/api/auth/email-link/verify`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(origin === undefined ? {} : { Origin: origin }),
+      },
+      body: JSON.stringify({ token }),
+    });
+
+    expect(response.status).toBe(403);
+    expect(response.headers.getSetCookie()).toEqual([]);
+    expect(database.$transaction).not.toHaveBeenCalled();
+  },
+);
+
+it("отклоняет подтверждение ссылки через форму с разрешённого Origin", async () => {
+  const database = mockDatabase();
+  app = await setup(database);
+
+  const response = await fetch(`${app.url}/api/auth/email-link/verify`, {
+    method: "POST",
+    headers: { Origin: appOrigin },
+    body: new URLSearchParams({ token }),
+  });
+
+  expect(response.status).toBe(415);
+  expect(response.headers.getSetCookie()).toEqual([]);
+  expect(database.$transaction).not.toHaveBeenCalled();
+});
+
+it("отклоняет обновление, выход и изменение профиля со стороннего Origin", async () => {
+  const database = mockDatabase();
+  app = await setup(database);
+  const headers = {
+    Origin: "https://other.example.test",
+    Cookie: `tabula_access=${token}; tabula_refresh=${token}`,
+    "Content-Type": "application/json",
+  };
+  const responses = await Promise.all([
+    fetch(`${app.url}/api/auth/refresh`, { method: "POST", headers }),
+    fetch(`${app.url}/api/auth/logout`, { method: "POST", headers }),
+    fetch(`${app.url}/api/auth/profile`, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify({ username: "Никита" }),
+    }),
+  ]);
+
+  expect(responses.map((response) => response.status)).toEqual([403, 403, 403]);
+  expect(
+    responses.flatMap((response) => response.headers.getSetCookie()),
+  ).toEqual([]);
+  expect(database.session.updateMany).not.toHaveBeenCalled();
+  expect(database.session.findUnique).not.toHaveBeenCalled();
+  expect(database.user.update).not.toHaveBeenCalled();
+});
+
+it("отклоняет ссылку, для которой нет действующего токена", async () => {
+  const database = mockDatabase();
+  database.emailVerificationToken.updateManyAndReturn
+    .mockReset()
+    .mockResolvedValue([]);
+  app = await setup(database);
+
+  const response = await app.request("email-link/verify", "POST", { token });
+
+  expect(response.status).toBe(401);
+  expect(database.user.upsert).not.toHaveBeenCalled();
+  expect(database.session.create).not.toHaveBeenCalled();
+});
+
+it("погашает ссылку и выдаёт сессию только один раз", async () => {
+  const database = mockDatabase();
+  app = await setup(database);
+
+  const responses = await Promise.all([
+    app.request("email-link/verify", "POST", { token }),
+    app.request("email-link/verify", "POST", { token }),
+  ]);
+  const success = responses.find((response) => response.ok);
+  expect(
+    responses.map((response) => response.status).sort((a, b) => a - b),
+  ).toEqual([200, 401]);
+  expect(await success?.json()).toEqual({ username: null, needsProfile: true });
+  expect(database.session.create).toHaveBeenCalledTimes(1);
+
+  expect(
+    database.emailVerificationToken.updateManyAndReturn,
+  ).toHaveBeenCalledWith({
+    where: {
+      token_hash: new Uint8Array(createHash("sha256").update(token).digest()),
+      used_at: null,
+      revoked_at: null,
+      expires_at: { gt: expect.any(Date) },
+    },
+    data: { used_at: expect.any(Date) },
+    select: { email: true },
+  });
+  expect(database.user.upsert).toHaveBeenCalledWith(
+    expect.objectContaining({
+      where: { email: "user@example.test" },
+      create: expect.objectContaining({ email_verified_at: expect.any(Date) }),
+    }),
+  );
+  const cookies = success?.headers.getSetCookie() ?? [];
+  expect(cookies).toHaveLength(2);
+  for (const cookie of cookies) {
+    expect(cookie).toContain("HttpOnly");
+    expect(cookie).toContain("Secure");
+    expect(cookie).toContain("SameSite=Lax");
+    expect(cookie).toContain("Path=/");
+  }
+  expect(cookies[0]).toMatch(/^tabula_access=/);
+  expect(cookies[1]).toMatch(/^tabula_refresh=/);
+});
+
+it("для существующего профиля не запрашивает имя повторно", async () => {
+  app = await setup(mockDatabase("Никита"));
+  const response = await app.request("email-link/verify", "POST", { token });
+  expect(response.status).toBe(200);
+  expect(await response.json()).toEqual({
+    username: "Никита",
+    needsProfile: false,
+  });
+});
+
+it("после обновления сессии прежний refresh больше не действует", async () => {
+  const database = mockDatabase();
+  app = await setup(database);
+  const cookie = `tabula_refresh=${token}`;
+
+  const response = await app.request("refresh", "POST", undefined, cookie);
+  const replay = await app.request("refresh", "POST", undefined, cookie);
+
+  expect(response.status).toBe(204);
+  expect(response.headers.getSetCookie()).toHaveLength(2);
+  expect(replay.status).toBe(401);
+});
+
+it("сохраняет имя только с действующим access", async () => {
+  const database = mockDatabase();
+  app = await setup(database);
+
+  const denied = await app.request("profile", "PATCH", { username: "Никита" });
+  const accepted = await app.request(
+    "profile",
+    "PATCH",
+    { username: " Никита " },
+    `tabula_access=${token}`,
+  );
+
+  expect(denied.status).toBe(401);
+  expect(accepted.status).toBe(200);
+  expect(await accepted.json()).toEqual({
+    username: "Никита",
+    needsProfile: false,
+  });
+  expect(database.user.update).toHaveBeenCalledTimes(1);
+});
+
+it("при выходе отзывает сессию и очищает обе cookie", async () => {
+  const database = mockDatabase();
+  app = await setup(database);
+  const response = await app.request(
+    "logout",
+    "POST",
+    undefined,
+    `tabula_refresh=${token}`,
+  );
+
+  expect(response.status).toBe(204);
+  expect(database.session.updateMany).toHaveBeenCalledTimes(1);
+  expect(response.headers.getSetCookie()).toHaveLength(2);
+  expect(
+    response.headers
+      .getSetCookie()
+      .every((cookie) => cookie.includes("Max-Age=0")),
+  ).toBe(true);
+});
+
+it("отзывает обновлённую сессию, если выход отправили со старой cookie", async () => {
+  const database = mockDatabase();
+  app = await setup(database);
+  const cookie = `tabula_refresh=${token}`;
+  const refreshed = await app.request("refresh", "POST", undefined, cookie);
+  const newCookie = refreshed.headers.getSetCookie()[1]?.split(";")[0];
+  expect(refreshed.status).toBe(204);
+  expect(newCookie?.startsWith(`tabula_refresh=${token}.`)).toBe(true);
+  await app.request("logout", "POST", undefined, cookie);
+
+  expect(database.session.updateMany).toHaveBeenLastCalledWith({
+    where: {
+      revoked_at: null,
+      OR: [
+        {
+          refresh_family_hash: new Uint8Array(
+            createHash("sha256").update(token).digest(),
+          ),
+        },
+      ],
+    },
+    data: { revoked_at: expect.any(Date) },
+  });
+});
+
+it("отклоняет имя, которое PostgreSQL не сможет сохранить", async () => {
+  const database = mockDatabase();
+  app = await setup(database);
+
+  const response = await app.request(
+    "profile",
+    "PATCH",
+    { username: "Имя" + String.fromCharCode(0) },
+    `tabula_access=${token}`,
+  );
+
+  expect(response.status).toBe(400);
+  expect(database.user.update).not.toHaveBeenCalled();
+});

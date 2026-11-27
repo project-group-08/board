@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model User {
+  id Int @id @default(autoincrement())
+  email String @unique @db.VarChar(320)
+  username String? @db.VarChar(100)
+  email_verified_at DateTime? @db.Timestamptz(6)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @default(now()) @db.Timestamptz(6)
+
+  sessions Session[]
+
+  @@map("users")
+}
+
+model EmailVerificationToken {
+  id BigInt @id @default(autoincrement())
+  email String @db.VarChar(320)
+  token_hash Bytes @unique @db.ByteA
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  expires_at DateTime @db.Timestamptz(6)
+  used_at DateTime? @db.Timestamptz(6)
+  revoked_at DateTime? @db.Timestamptz(6)
+
+  @@index([expires_at])
+  @@map("email_verification_tokens")
+}
+
+model Session {
+  id                    BigInt     @id @default(autoincrement())
+  user_id               Int
+  user                  User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  access_token_hash     Bytes      @unique @db.ByteA
+  refresh_token_hash    Bytes      @unique @db.ByteA
+  refresh_family_hash   Bytes      @unique @db.ByteA
+  access_expires_at     DateTime   @db.Timestamptz(6)
+  refresh_expires_at    DateTime   @db.Timestamptz(6)
+  created_at            DateTime   @default(now()) @db.Timestamptz(6)
+  revoked_at            DateTime?  @db.Timestamptz(6)
+
+  @@index([user_id])
+  @@index([refresh_expires_at])
+  @@map("sessions")
+}
