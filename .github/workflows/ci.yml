@@ -1,0 +1,85 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check and build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    concurrency:
+      group: ci-${{ github.ref }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6.1.1
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm lint:fsd
+      - run: pnpm check-types
+      - run: pnpm -r run test --passWithNoTests
+      - run: pnpm build
+
+  deploy:
+    name: Deploy production
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment: production
+    concurrency:
+      group: production
+      cancel-in-progress: false\
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Build production image
+        run: |
+          git archive "$GITHUB_SHA" | docker build \
+            --build-arg NODE_VERSION="$(cat .nvmrc)" \
+            -f docker/Dockerfile.production \
+            -t "board:$GITHUB_SHA" -
+
+      - name: Deploy over SSH
+        env:
+          VPS_HOST: ${{ vars.VPS_HOST }}
+          VPS_USER: ${{ vars.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          umask 077
+          printf '%s\n' "$VPS_SSH_KEY" > "$RUNNER_TEMP/board_key"
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > "$RUNNER_TEMP/board_known_hosts"
+
+          ssh_args=(
+            -i "$RUNNER_TEMP/board_key"
+            -o BatchMode=yes
+            -o StrictHostKeyChecking=yes
+            -o UserKnownHostsFile="$RUNNER_TEMP/board_known_hosts"
+            -l "$VPS_USER"
+            -- "$VPS_HOST"
+          )
+
+          image="board:$GITHUB_SHA"
+          docker save "$image" | gzip -1 | ssh "${ssh_args[@]}" \
+            'bash -o pipefail -c "gzip -dc | docker load"'
+
+          ssh "${ssh_args[@]}" \
+            "cd /opt/board && IMAGE=$image docker compose up -d --pull missing --wait && printf '%s\n' 'IMAGE=$image' > .env"
