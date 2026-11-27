@@ -2,6 +2,7 @@ import { ArrowRight, Group, ZoomInIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { ThemeToggle } from "@/features/theme-toggle";
 import { Button } from "@/shared/ui/button";
 import { CheckItem } from "@/shared/ui/check-item";
 import { Faq } from "@/shared/ui/faq";
@@ -13,7 +14,6 @@ import { SiteFooter } from "@/shared/ui/site-footer";
 import { SiteHeader } from "@/shared/ui/site-header";
 
 import { LandingSection } from "./landing-section";
-import { ThemeToggle } from "./theme-toggle";
 
 const focus =
   "focus-visible:outline-2 focus-visible:outline-transparent focus-visible:shadow-[var(--shadow-focus)]";
