@@ -1,0 +1,54 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check and build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    concurrency:
+      group: ci-${{ github.ref }}
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6.1.1
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm lint:fsd
+      - run: pnpm check-types
+      - run: pnpm -r run test --passWithNoTests
+      - run: pnpm build
+
+  deploy:
+    name: Deploy production
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment: production
+    concurrency:
+      group: production
+      cancel-in-progress: false
+    steps:
+      - name: Trigger deployment
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.DEPLOY_HOOK_URL }}
+        run: |
+          test -n "$DEPLOY_HOOK_URL" || { echo "Set DEPLOY_HOOK_URL in the production environment"; exit 1; }
+          curl --fail --silent --show-error --max-time 60 \
+            --output /dev/null --request POST -- "$DEPLOY_HOOK_URL"
