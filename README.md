@@ -25,14 +25,14 @@
 
 ### Запуск приложений
 
-`pnpm dev:web` запускает Next.js на <http://localhost:3000>.
+`pnpm dev:web` запускает Next.js локально на <http://localhost:3000>.
 
 `pnpm dev:api` запускает NestJS на <http://localhost:4000> с перезапуском
 при изменениях. Сейчас API содержит только `GET /api/health`, который
 возвращает статус `204` без тела. Для запуска не нужны `.env`, Postgres
 или Redis: текущий код не использует переменные окружения и внешние сервисы.
 Prisma-схема и миграции появятся вместе с первой задачей хранения данных.
-Docker Compose добавляет задача инфраструктуры.
+Для запуска через Docker см. раздел «Запуск через Docker» ниже.
 
 `pnpm dev` запускает оба приложения через Turborepo. Команды
 `pnpm build:web` и `pnpm build:api` собирают приложения отдельно.
@@ -103,6 +103,87 @@ Oxlint, его движок проверки типов, Oxfmt и JS-плаги�
 `AGENTS.md` исключены из форматирования: форматирование таблиц увеличивает их размер сверх лимита цепочки правил для Codex. Выгрузку архитектуры `docs/architecture/frontend.md` обновляем только из исходной доски.
 
 Остальные проверки появятся вместе с конфигами: список работ в [docs/ai/README.md](docs/ai/README.md), раздел «Сделать с каркасом».
+
+### Запуск через Docker
+
+Для запуска нужны Docker Desktop с запущенным Docker Engine и Docker Compose v2.
+Проверьте Compose командой `docker compose version`.
+
+GNU Make нужен для команд Makefile в корне проекта. Проверьте его наличие
+командой `make --version`.
+
+Перед первым запуском из корня проекта создайте локальный файл окружения:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Соберите образ API:
+
+```sh
+make build
+```
+
+Запустите инфраструктуру и API в Docker:
+
+```sh
+make up
+```
+
+API в контейнере работает в режиме watch: изменения в `apps/api/src`
+автоматически перезапускают сервер. Пересобирать образ после правок исходников
+не нужно; пересборка потребуется при изменении зависимостей.
+
+В отдельном терминале запустите фронтенд локально:
+
+```sh
+pnpm dev:web
+```
+
+Caddy в Docker проксирует запросы сайта на локальный Next.js через
+`host.docker.internal:3000`, а `/api` и `/socket.io` — в контейнер API.
+После запуска откройте <https://localhost>.
+
+Без GNU Make выполните эквивалентную команду:
+
+```sh
+docker compose --project-directory . --profile local -f docker-compose.yml up -d
+```
+
+Compose-файл находится в корне; Dockerfile API и Caddyfile — в `docker/`.
+Профиль `local` включает Mailpit. Для запуска Compose напрямую из корня проекта
+используйте указанные выше `--project-directory`, `--profile` и путь к файлу.
+
+Локальные адреса:
+
+- приложение: <https://localhost>;
+- интерфейс Mailpit: <http://localhost:8025>;
+- PostgreSQL: `localhost:5432`;
+- Redis: `localhost:6379`.
+
+Остановить сервисы, сохранив данные PostgreSQL и Redis:
+
+```sh
+make down
+```
+
+Эквивалентная команда:
+
+```sh
+docker compose --project-directory . --profile local -f docker-compose.yml down
+```
+
+Посмотреть логи в реальном времени:
+
+```sh
+make logs
+```
+
+Эквивалентная команда:
+
+```sh
+docker compose --project-directory . --profile local -f docker-compose.yml logs -f
+```
 
 ## Ветки и коммиты
 

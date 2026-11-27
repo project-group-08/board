@@ -3,6 +3,11 @@
   "compilerOptions": {
     "rootDir": "./src"
   },
+  "watchOptions": {
+    "watchFile": "fixedPollingInterval",
+    "watchDirectory": "fixedPollingInterval",
+    "fallbackPolling": "dynamicPriority"
+  },
   "include": ["src/**/*.ts"],
   "exclude": [
     "node_modules",
